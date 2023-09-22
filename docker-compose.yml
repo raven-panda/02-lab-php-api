@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  api:
+    build:
+      dockerfile: ./app/Dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - type: bind
+        source: ./app/src
+        target: /var/www/html
+    environment:
+      - MYSQL_HOST=database
+      - MYSQL_DATABASE=contactdb
+      - MYSQL_USER=client
+      - MYSQL_PASSWORD=Cha171205
+  database:
+    image: mysql
+    ports:
+      - 3307:3306
+    volumes:
+      - type: volume
+        source: api-db
+        target: /var/lib/mysql
+      - type: bind
+        source: ./database/entrypoint
+        target: /docker-entrypoint-initdb.d
+      - type: bind
+        source: ./database/backup
+        target: /database_backup
+    environment:
+      - MYSQL_HOST=database
+      - MYSQL_ROOT_PASSWORD=VerySecuredPassword321
+      - MYSQL_DATABASE=api-db
+      - MYSQL_USER=api
+      - MYSQL_PASSWORD=Totally_Secured_Password123
+volumes:
+  api-db:
