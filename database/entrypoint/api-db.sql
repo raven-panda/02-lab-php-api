@@ -59,6 +59,11 @@ CREATE TABLE IF NOT EXISTS `api-db`.`cat_tech` (
 ENGINE = InnoDB;
 
 
+-- -----------------------------------------------------
+-- Inserting base categories
+-- -----------------------------------------------------
+INSERT INTO `api-db`.`categories` (`name`) VALUES ('programming-language'), ('frameworks-library'), ('databases'), ('front-development'), ('back-development'), ('web-security'), ('deployment-server-management'), ('mobile-responsive-development'), ('development-tools'), ('trends-news'), ('community-learning-ressources');
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
