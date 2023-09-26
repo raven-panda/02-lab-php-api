@@ -31,8 +31,11 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `api-db`.`technologies` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(150) NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `category` VARCHAR(60) NOT NULL,
+  `ressources` VARCHAR(255) NOT NULL,
   `icon` LONGBLOB NOT NULL,
+  `icon_name` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB;

@@ -17,7 +17,7 @@ To run this API, you will need two Docker containers made with a docker-compose:
 1. Clone this GitHub repository to your local system:
 
 ```bash
-git clone https://github.com/your-username/php-dev-api.git
+git clone https://github.com/your-username/php-dev-api.git ./
 ```
 
 2. Configure your Docker environment with the two containers mentioned above.
@@ -28,16 +28,61 @@ You can now use the API by following the documented URLs and endpoints below.
 
 ## API Endpoints
 
-This is work in progress.
+Response are in JSON and requests body must be in JSON (except POST, examples bellow).
 
-## Example JSON Payload for Creating a Technology
+- GET /categories : Retrieve a list of all technology categories.
+
+- POST /categories : Create a new category.
+
+- GET /categories/{cat_id} : Retrieve details of a category, replace "{cat_id}" with the name of the category.
+
+- PUT /categories/{cat_id} : Update category informations, replace "{cat_id}" with the name of the category.
+
+- DELETE /categories/{cat_id} : Delete a category, replace "{cat_id}" with the name of the category.
+
+- GET /technologies : Retrieve a list of all technologies.
+
+- POST /technologies : Create a new technology.
+
+- GET /technologies/{tech_id} : Retrieve details of a technology, replace "{tech_id}" with the name of the technology.
+
+- PUT /technologies/{tech_id} : Update technology informations, replace "{tech_id}" with the name of the technology.
+
+- DELETE /technologies/{tech_id} : Delete a technology, replace "{tech_id}" with the name of the technology.
+
+## Example requests
+
+### Example POST/PUT form-data Payload with Postman-like tool for Creating a Category
+
+```
++-------------+----------------------------+
+| Key         | Value                      |
++-------------+----------------------------+
+| name        | front-development          |
++-------------+----------------------------+
+```
+
+### Example POST/PUT form-data Payload with Postman-like tool for Creating a Technology
+
+```
++-------------+-----------------------------------------------------------------+
+| Key         | Value                                                           |
++-------------+-----------------------------------------------------------------+
+| name        | HTML                                                            |
+| ressources  | [{"url":"https://developer.mozilla.org/fr/docs/Glossary/HTML"}] |
+| icon        | [html-logo.png] (here a file input)                             |
+| category    | front-development                                               |
++-------------+-----------------------------------------------------------------+
+```
+
+### Example PUT JSON Payload returned for Getting Categorr or Technology
 
 ```json
 {
-  "name": "Ruby",
-  "category": "Programming Languages",
-  "resources": ["https://ruby-lang.org"],
-  "logo": "ruby.png"
+  "name":"the-name",
+  "category":"category-of-the-technology",
+  "ressources":[{"url":"the.url/of/the/ressource"}, ...],
+  "icon_name":"your-icon.png"
 }
 ```
 

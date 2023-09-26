@@ -57,7 +57,7 @@
                 }
 
             } else {
-                echo '"'. $name . '" is not a valid name.';
+                $response = 'special-chars-not-allowed';
             }
 
         }

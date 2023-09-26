@@ -2,6 +2,7 @@
 
     /**
      * Function for connection to the MySQL Database
+     * @return object The PDO connection to the database
      */
     function databaseConnection() {
         
@@ -14,5 +15,104 @@
         }
 
         return $mysql_connection;
+    }
+
+    /**
+     * Function for JSON objects sanitizing
+     * @param array The input JSON decoded array
+     * @return array The output PHP array
+     */
+    function sanitizeObject($object) {
+        // Checking if the given parameter is an array
+        if (is_array($object)) {
+
+            // Sanitizing the array values
+            foreach($object as $key => $value) {
+                // Checking if the value is an array to sanitize
+                if (is_array($value)) {
+                    $value_sanitized = sanitizeObject($value);
+                } else {
+                    $value_sanitized = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                }
+
+                // Defining the output array values with their original keys
+                $object_sanitized[$key] = $value_sanitized;
+            }
+
+            return $object_sanitized;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * This function parses a raw HTTP request, used for the PUT method that needs a form-data type of body for updating images.
+     * 
+     * @param string The raw HTTP request body.
+     * @return array Key => Values pairs of the form-data.
+     */
+    function parse_raw_http_request($data) {
+
+        // Spliting the request by the boundary
+        $boundary = '/\-{28}\d{24}/';
+        $raw_data = preg_split($boundary, $data);
+        array_shift($raw_data);
+
+        // Initializing the output arrays
+        $input_values = array();
+        $icon = array();
+
+        foreach($raw_data as $str) {
+            // Removing unwanted string
+            $str_clean = str_replace('Content-Disposition: form-data;', '', $str);
+
+            // Getting the field name value
+            $value_regex = '/name\=\"[a-zA-Z]+\"/';
+            preg_match($value_regex, $str_clean, $field_key);
+            if (isset($field_key[0])) {
+                preg_match('/name\=\"([^"]+)\"/', $field_key[0], $field_name);
+                $field_name = $field_name[1];
+            }
+
+            // Removing unwanted string
+            $str_clean = preg_replace($value_regex, '', $str_clean);
+
+            // File parsing for an image
+            $contenttype_regex = '/Content-Type: image\/[a-z]+/';
+
+            if (preg_match($contenttype_regex, $str_clean, $content_type)) {
+                
+                // Getting the file name
+                $filename_regex = '/\; filename\=\".+\.[a-zA-Z0-9]+\"/';
+                preg_match($filename_regex, $str_clean, $filename);
+                
+                $filename = str_replace(';', '', $filename[0]);
+                preg_match('/filename\=\"([^"]+)\"/', $filename, $filename_matches);
+                $filename = $filename_matches[1];
+
+                // Removing unwanted string
+                $content_type = str_replace('Content-Type: image/', '', $content_type);
+                $file_data = preg_replace($filename_regex, '', $str_clean);
+                $file_data = preg_replace($contenttype_regex, '', $file_data);
+
+                // Defining the icon array key => values
+                $icon['file_name'] = $filename;
+                $icon['file_type'] = $content_type[0];
+                $icon['file_data'] = trim($file_data);
+                $icon['file_size'] = strval(strlen($file_data));
+
+                $str_clean = $icon;
+            }
+
+            // Removing unwanted whitespaces in the beginning and end of the string
+            if (!is_array($str_clean)) $str_clean = trim($str_clean);
+
+            // Pushing the value in the array with the field name as key
+            if ($str_clean !== '--') {
+                $input_values[$field_name] = $str_clean;
+            }
+        }
+
+        return $input_values;
     }
 ?>

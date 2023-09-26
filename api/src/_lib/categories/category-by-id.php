@@ -4,6 +4,8 @@
     
     if (in_array($request_method, array("GET", "PUT", "DELETE"), true)) {
 
+        $response = '';
+
         $paths = preg_split('~/(?=[^/]*$)~', htmlspecialchars($_SERVER['REQUEST_URI']));
         $cat_name = end($paths);
 
@@ -22,16 +24,18 @@
 
             if (!empty($results)) {
 
+                $response = $results;
+
                 if ($request_method === 'PUT') {
-                    $put_data = file_get_contents('php://input');
-                    $json_data = json_decode($put_data, true);
+                    $json_data = file_get_contents('php://input');
+                    $put_data = json_decode($json_data, true);
     
-                    if ($json_data && json_last_error() === JSON_ERROR_NONE
-                    && isset($json_data['new-name']) && !empty($json_data['new-name'])) {
+                    if ($put_data && json_last_error() === JSON_ERROR_NONE
+                    && isset($put_data['name']) && !empty($put_data['name'])) {
     
                         try {
 
-                            $new_name = htmlspecialchars($json_data['new-name']);
+                            $new_name = htmlspecialchars($put_data['name']);
                             
                             $sql_updateCat = "UPDATE categories SET `name` = :new_name WHERE `name` = :old_name";
                             $sth = $mysql_connection->prepare($sql_updateCat);
@@ -94,7 +98,9 @@
             $response = 'server-error';
         }
 
-        echo json_encode($response);
+        if (http_response_code() !== 404) {
+            echo json_encode($response);
+        }
 
     } else {
         http_response_code(404);

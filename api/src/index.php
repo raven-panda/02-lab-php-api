@@ -1,5 +1,7 @@
 <?php
 
+    header('Access-Control-Allow-Origin: http://php-dev-2.online:3000');
+
     /**
      * Displays all available roots.
      */
@@ -25,13 +27,28 @@
     function categoryById() {
         include './_lib/categories/category-by-id.php';
     }
+
+    /**
+     * Displays the available technologies under the chosen category
+     */
+    function allTechnologiesFromCategory($category) {
+        include './_lib/technologies/all-technologies-from-category.php';
+    }
+    /**
+     * Technology by id
+     */
+    function technologyById($category) {
+        include './_lib/technologies/technology-by-id.php';
+    }
+
     /**
      * Checls if the requested root exists, and then execute the function associated.
      */
     function rooter($url, $method) {
         foreach($GLOBALS['roots'] as $pattern => $handler) {
             $fullUrl = $method . ':' . $url;
-            $pattern = str_replace('{id}', '([^/]+$)', $pattern);
+            $pattern = str_replace('{cat_id}', '([^/]+)', $pattern); // Nouveau motif pour cat_id
+            $pattern = str_replace('{tech_id}', '([^/]+)', $pattern); // Nouveau motif pour tech_id
             $pattern = str_replace('/', '\/', $pattern);
             if(preg_match('/^' . $pattern . '$/', $fullUrl, $matches)) {
                 array_shift($matches);
@@ -47,11 +64,19 @@
      */
     $GLOBALS['roots'] = [
         'GET:/' => 'getAllRoots',
+
+        // Categories roots
         'GET:/categories' => 'categories',
         'POST:/categories' => 'categories',
-        'GET:/categories/{id}' => 'categoryById',
-        'PUT:/categories/{id}' => 'categoryById',
-        'DELETE:/categories/{id}' => 'categoryById'
+        'GET:/categories/{cat_id}' => 'categoryById',
+        'PUT:/categories/{cat_id}' => 'categoryById',
+        'DELETE:/categories/{cat_id}' => 'categoryById',
+
+        // Technologies roots
+        'GET:/technologies' => 'allTechnologiesFromCategory',
+        'POST:/technologies' => 'allTechnologiesFromCategory',
+        'GET:/technologies/{tech_id}' => 'technologyById',
+        'PUT:/technologies/{tech_id}' => 'technologyById'
     ];
 
     /**
