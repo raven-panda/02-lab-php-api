@@ -1,5 +1,52 @@
 <?php
+    /**
+     * This is my validation and errors/warnings response messages manager.
+     */
+    class MessageResponses {
+        /**
+         * The error manager function
+         */
+        function errorMessage($code) {
+            switch ($code) {
+                // Form invalidity errors/warnings
+                case 100:
+                    return array('100' => 'Syntax Error: Fields are missing or incorrect.');
+                case 101:
+                    return array('101' => 'Syntax Error: Special characters aren\'t allowed.');
 
+                // PDO MySQL errors/warnings
+                case 200:
+                    return array("200" => 'Server Error: Cannot access to the requested ressource.');
+                case 201:
+                    return array("201" => 'Server Warning: No changes.');
+                case 202:
+                    return array("202" => 'Server Error: Already exists.');
+                case 203:
+                    return array("203" => 'Server Error: One of the categories doesn\'t exist or you put wrong categories.');
+                case 210:
+                    return array("210" => 'Server Warning: No entries.');
+                        
+                // API request errors/warnings
+                case 400:
+                    return array("400" => "Request Error: Path or method used may be incorrect. Please read the README of this API on how to use it there: https://github.com/raven-panda/02-lab-php-api.git.");
+                default:
+                    return null;
+            }
+        }
+        /**
+         * The validation messages manager function
+         */
+        function validMessage($code) {
+            switch ($code) {
+                case 1:
+                    return array("1" => 'Server: Added Successfully.');
+                case 2:
+                    return array("2" => 'Server: Edited Successfully.');
+                default:
+                    return null;
+            }
+        }
+    }
     /**
      * Function for connection to the MySQL Database
      * @return object The PDO connection to the database
