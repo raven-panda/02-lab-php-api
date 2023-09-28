@@ -5,6 +5,7 @@
     class MessageResponses {
         /**
          * The error manager function
+         * @param int Message code
          */
         function errorMessage($code) {
             switch ($code) {
@@ -24,7 +25,7 @@
                 case 202:
                     return array("202" => 'Server Error: Already exists.');
                 case 203:
-                    return array("203" => 'Server Error: One of the categories doesn\'t exist or you put wrong categories.');
+                    return array("203" => 'Server Error: One of the categories doesn\'t exist or you wrote wrong categories.');
                 case 210:
                     return array("210" => 'Server Error: Not found.');
                         
@@ -37,6 +38,7 @@
         }
         /**
          * The validation messages manager function
+         * @param int Message code
          */
         function validMessage($code) {
             switch ($code) {

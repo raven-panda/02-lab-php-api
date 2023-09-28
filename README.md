@@ -32,23 +32,23 @@ Response are in JSON and requests body must be in JSON (except POST, examples be
 
 - GET /categories : Retrieve a list of all technology categories.
 
-- POST /categories : Create a new category.
+- `POST /categories` : Create a new category.
 
-- GET /categories/{cat_id} : Retrieve details of a category, replace "{cat_id}" with the name of the category.
+- `GET /categories/{cat_id}` : Retrieve details of a category, replace "{cat_id}" with the name of the category.
 
-- PUT /categories/{cat_id} : Update category informations, replace "{cat_id}" with the name of the category.
+- `PUT /categories/{cat_id}` : Update category informations, replace "{cat_id}" with the name of the category.
 
-- DELETE /categories/{cat_id} : Delete a category, replace "{cat_id}" with the name of the category.
+- `DELETE /categories/{cat_id}` : Delete a category, replace "{cat_id}" with the name of the category.
 
-- GET /technologies : Retrieve a list of all technologies.
+- `GET /technologies` : Retrieve a list of all technologies.
 
-- POST /technologies : Create a new technology.
+- `POST /technologies` : Create a new technology.
 
-- GET /technologies/{tech_id} : Retrieve details of a technology, replace "{tech_id}" with the name of the technology.
+- `GET /technologies/{tech_id}` : Retrieve details of a technology, replace "{tech_id}" with the name of the technology.
 
-- PUT /technologies/{tech_id} : Update technology informations, replace "{tech_id}" with the name of the technology.
+- `PUT /technologies/{tech_id}` : Update technology informations, replace "{tech_id}" with the name of the technology.
 
-- DELETE /technologies/{tech_id} : Delete a technology, replace "{tech_id}" with the name of the technology.
+- `DELETE /technologies/{tech_id}` : Delete a technology, replace "{tech_id}" with the name of the technology.
 
 ## Example requests
 
@@ -99,6 +99,8 @@ Errors and validation response messages are managed with codes I defnined myself
 - `100 : Syntax Error: Fields are missing or incorrect.` This message shows that you put bad fields or that some are missing.
 
 - `101 : Syntax Error: Special characters aren't allowed.` This message shows that the name of your category/technology is not in the right format.
+
+- `102 : File Error: You icon size exceeds the 2Mb allowed.` This message shows that the user put an image that exceeds maximum 2Mb size allowed.
 
 #### PDO MySQL errors/warnings
 

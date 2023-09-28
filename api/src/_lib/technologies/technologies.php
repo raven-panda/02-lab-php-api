@@ -3,6 +3,7 @@
 
     $response = '';
 
+    // If the method is POST, list all the technologies
     if ($request_method === 'GET') {
 
         $mysql_connection = databaseConnection();
@@ -11,6 +12,7 @@
 
             try {
 
+                // Getting technologies in the database
                 $sql = "SELECT name, categories, ressources, icon_name FROM technologies";
                 $sth = $mysql_connection->prepare($sql);
     
@@ -41,22 +43,27 @@
 
         echo json_encode($response, JSON_UNESCAPED_SLASHES);
 
+    // If the method is POST, trigger the 'add' script
     } else if ($request_method === "POST") {
 
         if (isset($_POST['name']) && !empty($_POST['name'])
+
+            // Checking if all the required fields are set and non empty
             && isset($_POST['ressources']) && !empty($_POST['ressources'])
             && isset($_POST['categories']) && !empty($_POST['categories'])
             && isset($_FILES['icon']) && !empty($_FILES['icon'])
 
+            // Checking if all the fields in the icon file are set and non empty
             && isset($_FILES['icon']['name']) && !empty($_FILES['icon']['name'])
             && isset($_FILES['icon']['tmp_name']) && !empty($_FILES['icon']['tmp_name'])
             && isset($_FILES['icon']['size']) && !empty($_FILES['icon']['size'])
             && isset($_FILES['icon']['type']) && !empty($_FILES['icon']['type'])) {
 
+            // Setting the max icon size
             $upload_max_size = 2 * 1024 * 1024;
 
-            $name = htmlspecialchars($_POST['name']);
-            $name = strtolower($name);
+            // Sanitizing the fields
+            $name = strtolower(htmlspecialchars($_POST['name']));
     
             $ressources = sanitizeObject(json_decode($_POST['ressources'], true));
             $json_ress = json_encode($ressources, JSON_UNESCAPED_SLASHES);
@@ -64,16 +71,20 @@
             $categories = sanitizeObject(json_decode($_POST['categories']));
             $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
     
+            // Putting icon fields in variables
             $icon = $_FILES['icon'];
-            $icon_name = $icon['name'];
-            $icon_tmp = $icon['tmp_name'];
-            $icon_size = $icon['size'];
-            $icon_type = $icon['type'];
+            $icon_name = htmlspecialchars($icon['name']);
+            $icon_name = preg_replace('/\s/', '_', $icon_name);
+            $icon_tmp = htmlspecialchars($icon['tmp_name']);
+            $icon_size = htmlspecialchars($icon['size']);
+            $icon_type = htmlspecialchars($icon['type']);
     
             $icon_data = file_get_contents($icon_tmp);
     
+            // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
             if (preg_match('/^[a-z0-9_-]+$/', $name)) {
 
+                // Checking if icon's size exceeds the 2Mb allowed
                 if ($icon_size < $upload_max_size) {
 
                     $mysql_connection = databaseConnection();
@@ -82,6 +93,8 @@
     
                         try {
     
+                            // Inserting technology in the database, and the foreign keys IDs associated.
+                            // Using transaction here, so if one of the two query has an error, the queries are canceled.
                             $mysql_connection->beginTransaction();
         
                             $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon, icon_name) VALUES (:name, :category, :ressources, :icon, :icon_name);';
@@ -111,6 +124,7 @@
                 
                         } catch (PDOException $err) {
                             error_log($err);
+                            // Checking if the error is that the technology already exists, or if one of the given categories doesn't exist.
                             if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1062/', $err->getMessage())) {
                                 $response = $RES->errorMessage(202);
                             }
@@ -138,6 +152,6 @@
         echo json_encode($response);
 
     } else {
-        http_response_code(404);
+        echo json_encode($RES->errorMessage(400));
     }
 ?>
