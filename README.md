@@ -52,7 +52,7 @@ Response are in JSON and requests body must be in JSON (except POST, examples be
 
 ## Example requests
 
-### Example POST/PUT form-data Payload with Postman-like tool for Creating a Category
+### Example POST/PUT form-data Payload with API testing tool for Creating a Category
 
 ```
 +-------------+----------------------------+
@@ -62,7 +62,7 @@ Response are in JSON and requests body must be in JSON (except POST, examples be
 +-------------+----------------------------+
 ```
 
-### Example POST/PUT form-data Payload with Postman-like tool for Creating a Technology
+### Example POST/PUT form-data Payload with API testing tool for Creating a Technology
 
 The maximum icon size allowed is 2Mb.
 
@@ -71,7 +71,7 @@ The maximum icon size allowed is 2Mb.
 | Key         | Value                                                              |
 +-------------+--------------------------------------------------------------------+
 | name        | HTML                                                               |
-| ressources  | ["url":"https://developer.mozilla.org/fr/docs/Glossary/HTML", ...] |
+| ressources  | ["https://developer.mozilla.org/fr/docs/Glossary/HTML", ...] |
 | icon        | [html-logo.png] (here a file input)                                |
 | categories  | ["category-1","category-2", ...]                                   |
 +-------------+--------------------------------------------------------------------+
@@ -81,10 +81,18 @@ The maximum icon size allowed is 2Mb.
 
 ```json
 {
-  "name":"the-name",
-  "categories":["category-1","category-2", ...],
-  "ressources":["the.url/of/the/ressource", "other.url/example" ...],
-  "icon_name":"your-icon.png"
+  "name": "the-name",
+  "categories": [
+    "category-of-tech1",
+    "category-of-tech2",
+    ...
+  ],
+  "ressources": [
+    "the.url/of/the/tech/ressource",
+    "other.url/example",
+    ...
+  ],
+  "icon_name": "your-icon.png"
 }
 ```
 
@@ -101,6 +109,8 @@ Errors and validation response messages are managed with codes I defnined myself
 - `101 : Syntax Error: Special characters aren't allowed.` This message shows that the name of your category/technology is not in the right format.
 
 - `102 : File Error: You icon size exceeds the 2Mb allowed.` This message shows that the user put an image that exceeds maximum 2Mb size allowed.
+
+- `103 : Syntax Error: Ressources or categories is not JSON arrays.` This message shows that the user put wrong JSON arrays.
 
 #### PDO MySQL errors/warnings
 

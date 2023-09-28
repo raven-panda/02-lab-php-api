@@ -16,6 +16,8 @@
                     return array('101' => 'Syntax Error: Special characters aren\'t allowed.');
                 case 102:
                     return array('102' => 'File Error: You icon size exceeds the 2Mb allowed.');
+                case 103:
+                    return array('103' => 'Syntax Error: Ressources or categories is not JSON arrays.');
 
                 // PDO MySQL errors/warnings
                 case 200:

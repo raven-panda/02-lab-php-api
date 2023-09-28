@@ -20,7 +20,7 @@ USE `api-db` ;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `api-db`.`categories` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(60) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB;
@@ -31,11 +31,11 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `api-db`.`technologies` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100) NOT NULL,
-  `categories` VARCHAR(60) NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `categories` VARCHAR(255) NOT NULL,
   `ressources` VARCHAR(255) NOT NULL,
   `icon` LONGBLOB NOT NULL,
-  `icon_name` VARCHAR(50) NOT NULL,
+  `icon_name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB;
