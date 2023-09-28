@@ -16,7 +16,7 @@
             $mysql_connection = databaseConnection();
 
             // Selecting the technology in the database
-            $sql_selectTech = 'SELECT `name`, categories, ressources, icon, icon_name FROM technologies WHERE `name` = :name';
+            $sql_selectTech = 'SELECT `name`, categories, ressources, icon FROM technologies WHERE `name` = :name';
             $sth = $mysql_connection->prepare($sql_selectTech);
 
             $sth->bindParam(':name', $tech_name, PDO::PARAM_STR);
@@ -31,7 +31,6 @@
                 $results['categories'] = sanitizeObject(json_decode($results['categories'], true));
                 
                 $response = $results;
-                unset($response['icon']);
 
                 // Edit technology script
                 if ($request_method === "PUT") {
@@ -58,49 +57,62 @@
                         if ($categories && $ressources) {
                         
                             $icon_data = $_PUT['icon']['file_data'];
-                            $icon_name = htmlspecialchars($_PUT['icon']['file_name']);
+                            $icon_name = strtolower(htmlspecialchars($_PUT['icon']['file_name']));
                             $icon_name = preg_replace('/\s/', '_', $icon_name);
                             $icon_size = htmlspecialchars($_PUT['icon']['file_size']);
 
-                            // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
-                            if (preg_match('/^[a-z0-9_-]+$/', $name)) {
+                            $icon_path = 'http://php-dev-2.online/logos/'. $icon_name;
+                            preg_match('/\/logos\/[a-z0-9_-]+\.[a-z0-9]+$/', $results['icon'], $icon_old_path);
+                            $icon_old_path = '.'. $icon_old_path[0];
 
-                                if ($icon_size < $upload_max_size) {
-                
-                                    try {
+                            if (file_exists($icon_old_path)) {
+                                unlink($icon_old_path);
+                            }
 
-                                        // Updating the technology with given values
-                                        $sql_updateTech = 'UPDATE technologies SET `name` = :name, ressources = :ressources, categories = :category, icon = :icon, icon_name = :icon_name WHERE `name` = :old_name;';
-                                        $sth = $mysql_connection->prepare($sql_updateTech);
+                            if (file_put_contents('./logos/'. $icon_name, $icon_data)) {
+
+                                // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
+                                if (preg_match('/^[a-z0-9_-]+$/', $name)) {
+
+                                    if ($icon_size < $upload_max_size) {
+                    
+                                        try {
+
+                                            // Updating the technology with given values
+                                            $sql_updateTech = 'UPDATE technologies SET `name` = :name, ressources = :ressources, categories = :category, icon = :icon WHERE `name` = :old_name;';
+                                            $sth = $mysql_connection->prepare($sql_updateTech);
+                            
+                                            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                            $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
+                                            $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
+                                            $sth->bindParam(':icon', $icon_path, PDO::PARAM_STR);
+                                            $sth->bindParam(':old_name', $tech_name, PDO::PARAM_STR);
                         
-                                        $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                        $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
-                                        $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
-                                        $sth->bindParam(':icon', $icon_data, PDO::PARAM_STR);
-                                        $sth->bindParam(':icon_name', $icon_name, PDO::PARAM_STR);
-                                        $sth->bindParam(':old_name', $tech_name, PDO::PARAM_STR);
+                                            $sth->execute();
+                        
+                                            $row = $sth->rowCount();
                     
-                                        $sth->execute();
+                                            if ($row && $row > 0) {
+                                                $response = $RES->validMessage(2);
+                                            } else {
+                                                $response = $RES->errorMessage(201);
+                                            }
                     
-                                        $row = $sth->rowCount();
-                
-                                        if ($row && $row > 0) {
-                                            $response = $RES->validMessage(2);
-                                        } else {
-                                            $response = $RES->errorMessage(201);
+                                        } catch (Exception $err) {
+                                            error_log($err);
+                                            $response = $RES->errorMessage(200);
                                         }
-                
-                                    } catch (Exception $err) {
-                                        error_log($err);
-                                        $response = $RES->errorMessage(200);
+
+                                    } else {
+                                        $response = $RES->errorMessage(102);
                                     }
 
                                 } else {
-                                    $response = $RES->errorMessage(102);
+                                    $response = $RES->errorMessage(101);
                                 }
 
                             } else {
-                                $response = $RES->errorMessage(101);
+                                $response = $RES->errorMessage(105);
                             }
                             
                         } else {

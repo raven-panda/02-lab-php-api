@@ -34,8 +34,7 @@ CREATE TABLE IF NOT EXISTS `api-db`.`technologies` (
   `name` VARCHAR(255) NOT NULL,
   `categories` VARCHAR(255) NOT NULL,
   `ressources` VARCHAR(255) NOT NULL,
-  `icon` LONGBLOB NOT NULL,
-  `icon_name` VARCHAR(255) NOT NULL,
+  `icon` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB;

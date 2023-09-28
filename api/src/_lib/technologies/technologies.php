@@ -13,7 +13,7 @@
             try {
 
                 // Getting technologies in the database
-                $sql = "SELECT name, categories, ressources, icon_name FROM technologies";
+                $sql = "SELECT name, categories, ressources, icon FROM technologies";
                 $sth = $mysql_connection->prepare($sql);
     
                 $sth->execute();
@@ -82,70 +82,76 @@
                 $icon_type = htmlspecialchars($icon['type']);
                 
                 $icon_data = file_get_contents($icon_tmp);
-                
-                // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
-                if (preg_match('/^[a-z0-9_-]+$/', $name)) {
-                    
-                    // Checking if icon's size exceeds the 2Mb allowed
-                    if ($icon_size < $upload_max_size) {
+                $icon_path = 'http://php-dev-2.online/logos/'. $icon_name;
+
+                if (file_put_contents('./logos/'. $icon_name, $icon_data)) {
+
+                    // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
+                    if (preg_match('/^[a-z0-9_-]+$/', $name)) {
                         
-                        $mysql_connection = databaseConnection();
-                        
-                        if ($mysql_connection) {
+                        // Checking if icon's size exceeds the 2Mb allowed
+                        if ($icon_size < $upload_max_size) {
                             
-                            try {
-        
-                                // Inserting technology in the database, and the foreign keys IDs associated.
-                                // Using transaction here, so if one of the two query has an error, the queries are canceled.
-                                $mysql_connection->beginTransaction();
+                            $mysql_connection = databaseConnection();
+                            
+                            if ($mysql_connection) {
+                                
+                                try {
             
-                                $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon, icon_name) VALUES (:name, :category, :ressources, :icon, :icon_name);';
-                                $sth = $mysql_connection->prepare($sql_insertTech);
-                        
-                                $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
-                                $sth->bindParam(':icon', $icon_data, PDO::PARAM_STR);
-                                $sth->bindParam(':icon_name', $icon_name, PDO::PARAM_STR);
-                                $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
-                                
-                                $sth->execute();
-                                
-                                foreach ($categories as $category) {
-                                    $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
-                                    $sth = $mysql_connection->prepare($sql_CatTech);
-                                    
+                                    // Inserting technology in the database, and the foreign keys IDs associated.
+                                    // Using transaction here, so if one of the two query has an error, the queries are canceled.
+                                    $mysql_connection->beginTransaction();
+                
+                                    $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon) VALUES (:name, :category, :ressources, :icon);';
+                                    $sth = $mysql_connection->prepare($sql_insertTech);
+                            
                                     $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                    $sth->bindParam(':category', $category, PDO::PARAM_STR);
+                                    $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
+                                    $sth->bindParam(':icon', $icon_path, PDO::PARAM_STR);
+                                    $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
                                     
                                     $sth->execute();
+                                    
+                                    foreach ($categories as $category) {
+                                        $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
+                                        $sth = $mysql_connection->prepare($sql_CatTech);
+                                        
+                                        $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                        $sth->bindParam(':category', $category, PDO::PARAM_STR);
+                                        
+                                        $sth->execute();
+                                    }
+                                    
+                                    $mysql_connection->commit();
+
+                                    $response = $RES->validMessage(1);
+                                    
+                                } catch (PDOException $err) {
+                                    error_log($err);
+                                    // Checking if the error is that the technology already exists, or if one of the given categories doesn't exist.
+                                    if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1062/', $err->getMessage())) {
+                                        $response = $RES->errorMessage(202);
+                                    } else if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1048/', $err->getMessage())) {
+                                        $response = $RES->errorMessage(203);
+                                    } else {
+                                        $response = $RES->errorMessage(200);
+                                    }
                                 }
                                 
-                                $mysql_connection->commit();
-                                
-                                $response = $RES->validMessage(1);
-                                
-                            } catch (PDOException $err) {
-                                error_log($err);
-                                // Checking if the error is that the technology already exists, or if one of the given categories doesn't exist.
-                                if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1062/', $err->getMessage())) {
-                                    $response = $RES->errorMessage(202);
-                                }
-                                if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1048/', $err->getMessage())) {
-                                    $response = $RES->errorMessage(203);
-                                }
+                            } else {
+                                $response = $RES->errorMessage(200);
                             }
                             
+                            
                         } else {
-                            $response = $RES->errorMessage(200);
+                            $response = $RES->errorMessage(102);
                         }
-                        
-                        
+                    
                     } else {
-                        $response = $RES->errorMessage(102);
+                        $response = $RES->errorMessage(101);
                     }
-                
                 } else {
-                    $response = $RES->errorMessage(101);
+                    $response = $RES->errorMessage(104);
                 }
 
             } else {

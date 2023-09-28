@@ -30,7 +30,7 @@ You can now use the API by following the documented URLs and endpoints below.
 
 Response are in JSON and requests body must be in JSON (except POST, examples bellow).
 
-- GET /categories : Retrieve a list of all technology categories.
+- `GET /categories` : Retrieve a list of all technology categories.
 
 - `POST /categories` : Create a new category.
 
@@ -85,14 +85,14 @@ The maximum icon size allowed is 2Mb.
   "categories": [
     "category-of-tech1",
     "category-of-tech2",
-    ...
+    "..."
   ],
   "ressources": [
     "the.url/of/the/tech/ressource",
     "other.url/example",
-    ...
+    "..."
   ],
-  "icon_name": "your-icon.png"
+  "icon_name": "http://php-dev-2.online/logos/your-icon.png"
 }
 ```
 
@@ -104,37 +104,50 @@ Errors and validation response messages are managed with codes I defnined myself
 
 #### Form invalidity errors/warnings
 
-- `100 : Syntax Error: Fields are missing or incorrect.` This message shows that you put bad fields or that some are missing.
+- `100 -> Syntax Error: Fields are missing or incorrect.`
+  - This message shows that you put bad fields or that some are missing.
 
-- `101 : Syntax Error: Special characters aren't allowed.` This message shows that the name of your category/technology is not in the right format.
+- `101 -> Syntax Error: Special characters aren't allowed.`
+  - This message shows that the name of your category/technology is not in the right format.
 
-- `102 : File Error: You icon size exceeds the 2Mb allowed.` This message shows that the user put an image that exceeds maximum 2Mb size allowed.
+- `102 -> File Error: You icon size exceeds the 2Mb allowed.`
+  - This message shows that the user put an image that exceeds maximum 2Mb size allowed.
 
-- `103 : Syntax Error: Ressources or categories is not JSON arrays.` This message shows that the user put wrong JSON arrays.
+- `103 -> Syntax Error: Ressources or categories is not JSON arrays.`
+  - This message shows that the user put wrong JSON arrays.
+
+- `104 -> File Error: Failed to store the icon.`
+
+- `105 -> File Error: Failed to store the new icon or the old one cannot be removed.`
 
 #### PDO MySQL errors/warnings
 
-- `200 : Server Error: Cannot access to the requested ressource.` This message shows that there is a problem with the database connection/query. The error is not specified in order to avoid showing the structure of the database to an external person who might be a potential hacker. If you want to see what's the error, just change `$RES->errorMessage(200)` to `$err->getMessage()`, this will set the PDO error message as response.
+- `200 -> Server Error: Server Error: There was a problem during your request, please try again.` 
+  - This message shows that there is a problem with the database connection/query. The error is not specified in order to avoid showing the structure of the database to an external person who might be a potential hacker. If you want to see what's the error, just change `$RES->errorMessage(200)` to `$err->getMessage()`, this will set the PDO error message as response.
 
-- `201 : Server Warning: No changes.` This message shows that the request doesn't changed anything in the database.
+- `201 -> Server Warning: No changes.`
+  - This message shows that the request didn't change anything in the database.
 
-- `202 : Server Error: Already exists.` This message shows that the category/technology already exists.
+- `202 -> Server Error: Already exists.`
+  - This message shows that the category/technology already exists.
 
-- `203 : Server Error: One of the categories doesn't exist or you put wrong categories.` This message shows that one of your category doesn't match any of the database's.
+- `203 -> Server Error: One of the categories doesn't exist or you put wrong categories.`
+  - This message shows that one of your category doesn't match any of the database's.
 
-- `210 : Server Warning: No entries.` This message shows that no entries were found.
+- `210 -> Server Warning: Not found.`
+  - This message shows that no entries were found.
 
 #### API request errors/warnings
 
-- `400 : Request Error: Path or method used may be incorrect. ...` This message shows that you are trying to access an URL that doesn't exist, or you are using the wrong method.
+- `400 -> Request Error: Path or method used may be incorrect. ...` This message shows that you are trying to access an URL that doesn't exist, or you are using the wrong method.
 
 ### Validation messages
 
-- `1 : Server: Added Successfully.` This message shows that you successfully created the technology/category.
+- `1 -> Server: Added Successfully.` This message shows that you successfully created the technology/category.
 
-- `2 : Server: Edited Successfully.` This message show that you successfully edited the technology/category.
+- `2 -> Server: Edited Successfully.` This message show that you successfully edited the technology/category.
 
-- `3 : Server: Deleted Successfully.` This message show that you successfully removed the technology/category.
+- `3 -> Server: Deleted Successfully.` This message show that you successfully removed the technology/category.
 
 ## Testing the API
 

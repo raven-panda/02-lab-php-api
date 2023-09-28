@@ -18,10 +18,14 @@
                     return array('102' => 'File Error: You icon size exceeds the 2Mb allowed.');
                 case 103:
                     return array('103' => 'Syntax Error: Ressources or categories is not JSON arrays.');
+                case 104:
+                    return array('104' => 'File Error: Failed to store the icon.');
+                case 105:
+                    return array('105' => 'File Error: Failed to store the new icon or the old one cannot be removed.');
 
                 // PDO MySQL errors/warnings
                 case 200:
-                    return array("200" => 'Server Error: Cannot access to the requested ressource.');
+                    return array("200" => 'Server Error: There was a problem during your request, please try again.');
                 case 201:
                     return array("201" => 'Server Warning: No changes.');
                 case 202:
