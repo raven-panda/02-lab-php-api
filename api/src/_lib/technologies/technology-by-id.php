@@ -22,8 +22,9 @@
             $results = $sth->fetch(PDO::FETCH_ASSOC);
 
             if (!empty($results)) {
-                $sanit = sanitizeObject(json_decode($results['ressources'], true));
-                $results['ressources'] = $sanit;
+                $results['ressources'] = sanitizeObject(json_decode($results['ressources'], true));
+                $results['categories'] = sanitizeObject(json_decode($results['categories'], true));
+                
                 $response = $results;
                 unset($response['icon']);
 
@@ -34,8 +35,10 @@
                     $_PUT = parse_raw_http_request($data);
         
                     if (isset($_PUT['name']) && isset($_PUT['ressources']) && isset($_PUT['icon']) && isset($_PUT['categories'])
-                    && isset($_PUT['icon']['file_name']) && isset($_PUT['icon']["file_type"]) && isset($_PUT['icon']['file_data'])) {
+                    && isset($_PUT['icon']['file_name']) && isset($_PUT['icon']["file_type"]) && isset($_PUT['icon']['file_data']) && isset($_PUT['icon']['file_size'])) {
         
+                        $upload_max_size = 2 * 1024 * 1024;
+                        
                         $name = strtolower(htmlspecialchars($_PUT['name']));
                         $categories = sanitizeObject(json_decode($_PUT['categories']));
                         $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
@@ -46,35 +49,43 @@
                         
                         $icon_data = $_PUT['icon']['file_data'];
                         $icon_name = htmlspecialchars($_PUT['icon']['file_name']);
+                        $icon_size = $_PUT['icon']['file_size'];
+
+                        if ($icon_size < $upload_max_size) {
         
-                        try {
-                            $sql_updateTech = 'UPDATE technologies SET `name` = :name, ressources = :ressources, categories = :category, icon = :icon, icon_name = :icon_name WHERE `name` = :old_name;';
-                            $sth = $mysql_connection->prepare($sql_updateTech);
+                            try {
+
+                                $sql_updateTech = 'UPDATE technologies SET `name` = :name, ressources = :ressources, categories = :category, icon = :icon, icon_name = :icon_name WHERE `name` = :old_name;';
+                                $sth = $mysql_connection->prepare($sql_updateTech);
+                
+                                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
+                                $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
+                                $sth->bindParam(':icon', $icon_data, PDO::PARAM_STR);
+                                $sth->bindParam(':icon_name', $icon_name, PDO::PARAM_STR);
+                                $sth->bindParam(':old_name', $tech_name, PDO::PARAM_STR);
             
-                            $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                            $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
-                            $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
-                            $sth->bindParam(':icon', $icon_data, PDO::PARAM_STR);
-                            $sth->bindParam(':icon_name', $icon_name, PDO::PARAM_STR);
-                            $sth->bindParam(':old_name', $tech_name, PDO::PARAM_STR);
+                                $sth->execute();
+            
+                                $row = $sth->rowCount();
         
-                            $sth->execute();
+                                if ($row && $row > 0) {
+                                    $response = $RES->validMessage(2);
+                                } else {
+                                    $response = $RES->errorMessage(201);
+                                }
         
-                            $row = $sth->rowCount();
-    
-                            if ($row && $row > 0) {
-                                $response = $RES->validMessage(2);
-                            } else {
-                                $response = $RES->errorMessage(201);
+                            } catch (Exception $err) {
+                                error_log($err);
+                                $response = $RES->errorMessage(200);
                             }
-    
-                        } catch (Exception $err) {
-                            error_log($err);
-                            $response = e->getCode();
+
+                        } else {
+                            $response = $RES->errorMessage(102);
                         }
                         
                     } else {
-                        $response = 'invalid-formdata';
+                        $response = $RES->errorMessage(100);
                     }
         
                 }
@@ -92,24 +103,24 @@
                         $row = $sth->rowCount();
     
                         if ($row && $row > 0) {
-                            $response = 'success';
+                            $response = $RES->validMessage(3);
                         } else {
-                            $response = 'no-changes';
+                            $response = $RES->errorMessage(201);
                         }
 
                     } catch (Exception $err) {
                         error_log($err);
-                        $response = 'server-error';
+                        $response = $RES->errorMessage(200);
                     }
                 }
                 
             } else {
-                $response = 'not-found';
+                $response = $RES->errorMessage(210);
             }
 
         } catch (Exception $err) {
             error_log($err);
-            $response = $err->getMessage();
+            $response = $RES->errorMessage(200);
         }
 
         echo json_encode($response, JSON_UNESCAPED_SLASHES);

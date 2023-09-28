@@ -64,24 +64,26 @@ Response are in JSON and requests body must be in JSON (except POST, examples be
 
 ### Example POST/PUT form-data Payload with Postman-like tool for Creating a Technology
 
+The maximum icon size allowed is 2Mb.
+
 ```
-+-------------+-----------------------------------------------------------------+
-| Key         | Value                                                           |
-+-------------+-----------------------------------------------------------------+
-| name        | HTML                                                            |
-| ressources  | [{"url":"https://developer.mozilla.org/fr/docs/Glossary/HTML"}] |
-| icon        | [html-logo.png] (here a file input)                             |
-| category    | front-development                                               |
-+-------------+-----------------------------------------------------------------+
++-------------+--------------------------------------------------------------------+
+| Key         | Value                                                              |
++-------------+--------------------------------------------------------------------+
+| name        | HTML                                                               |
+| ressources  | ["url":"https://developer.mozilla.org/fr/docs/Glossary/HTML", ...] |
+| icon        | [html-logo.png] (here a file input)                                |
+| categories  | ["category-1","category-2", ...]                                   |
++-------------+--------------------------------------------------------------------+
 ```
 
-### Example PUT JSON Payload returned for Getting Categorr or Technology
+### Example PUT JSON Payload returned for Getting Category or Technology
 
 ```json
 {
   "name":"the-name",
-  "category":"category-of-the-technology",
-  "ressources":[{"url":"the.url/of/the/ressource"}, ...],
+  "categories":["category-1","category-2", ...],
+  "ressources":["the.url/of/the/ressource", "other.url/example" ...],
   "icon_name":"your-icon.png"
 }
 ```
@@ -119,6 +121,8 @@ Errors and validation response messages are managed with codes I defnined myself
 - `1 : Server: Added Successfully.` This message shows that you successfully created the technology/category.
 
 - `2 : Server: Edited Successfully.` This message show that you successfully edited the technology/category.
+
+- `3 : Server: Deleted Successfully.` This message show that you successfully removed the technology/category.
 
 ## Testing the API
 

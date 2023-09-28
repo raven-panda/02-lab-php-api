@@ -27,13 +27,13 @@
 
                 $results = $sth->fetch(PDO::FETCH_ASSOC);
 
-                if ($results['technologies']) {
-                    $results['technologies'] = explode(', ', $results['technologies']);
-                } else {
-                    $results['technologies'] = array();
-                }
-
                 if (!empty($results)) {
+
+                    if ($results['technologies']) {
+                        $results['technologies'] = explode(', ', $results['technologies']);
+                    } else {
+                        $results['technologies'] = array();
+                    }
 
                     $response = $results;
 
@@ -87,9 +87,9 @@
                             $row = $sth->rowCount();
         
                             if ($row && $row > 0) {
-                                $response = 'success';
+                                $response = $RES->validMessage(3);
                             } else {
-                                $response = 'no-changes';
+                                $response = $RES->errorMessage(201);
                             }
 
                         } catch (Exception $err) {

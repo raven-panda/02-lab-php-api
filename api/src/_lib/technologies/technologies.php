@@ -2,6 +2,7 @@
     $request_method = $_SERVER['REQUEST_METHOD'];
 
     $response = '';
+
     if ($request_method === 'GET') {
 
         $mysql_connection = databaseConnection();
@@ -43,9 +44,16 @@
     } else if ($request_method === "POST") {
 
         if (isset($_POST['name']) && !empty($_POST['name'])
-        && isset($_POST['ressources']) && !empty($_POST['ressources'])
-        && isset($_POST['categories']) && !empty($_POST['categories'])
-        && isset($_FILES['icon']) && !empty($_FILES['icon'])) {
+            && isset($_POST['ressources']) && !empty($_POST['ressources'])
+            && isset($_POST['categories']) && !empty($_POST['categories'])
+            && isset($_FILES['icon']) && !empty($_FILES['icon'])
+
+            && isset($_FILES['icon']['name']) && !empty($_FILES['icon']['name'])
+            && isset($_FILES['icon']['tmp_name']) && !empty($_FILES['icon']['tmp_name'])
+            && isset($_FILES['icon']['size']) && !empty($_FILES['icon']['size'])
+            && isset($_FILES['icon']['type']) && !empty($_FILES['icon']['type'])) {
+
+            $upload_max_size = 2 * 1024 * 1024;
 
             $name = htmlspecialchars($_POST['name']);
             $name = strtolower($name);
@@ -66,51 +74,57 @@
     
             if (preg_match('/^[a-z0-9_-]+$/', $name)) {
 
-                $mysql_connection = databaseConnection();
+                if ($icon_size < $upload_max_size) {
 
-                if ($mysql_connection) {
+                    $mysql_connection = databaseConnection();
 
-                    try {
-
-                        $mysql_connection->beginTransaction();
+                    if ($mysql_connection) {
     
-                        $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon, icon_name) VALUES (:name, :category, :ressources, :icon, :icon_name);';
-                        $sth = $mysql_connection->prepare($sql_insertTech);
-                
-                        $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                        $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
-                        $sth->bindParam(':icon', $icon_data, PDO::PARAM_STR);
-                        $sth->bindParam(':icon_name', $icon_name, PDO::PARAM_STR);
-                        $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
+                        try {
     
-                        $sth->execute();
-    
-                        foreach ($categories as $category) {
-                            $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
-                            $sth = $mysql_connection->prepare($sql_CatTech);
+                            $mysql_connection->beginTransaction();
         
+                            $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon, icon_name) VALUES (:name, :category, :ressources, :icon, :icon_name);';
+                            $sth = $mysql_connection->prepare($sql_insertTech);
+                    
                             $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                            $sth->bindParam(':category', $category, PDO::PARAM_STR);
+                            $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
+                            $sth->bindParam(':icon', $icon_data, PDO::PARAM_STR);
+                            $sth->bindParam(':icon_name', $icon_name, PDO::PARAM_STR);
+                            $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
         
                             $sth->execute();
-                        }
-
-                        $mysql_connection->commit();
+        
+                            foreach ($categories as $category) {
+                                $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
+                                $sth = $mysql_connection->prepare($sql_CatTech);
             
-                        $response = $RES->validMessage(1);
+                                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                $sth->bindParam(':category', $category, PDO::PARAM_STR);
             
-                    } catch (PDOException $err) {
-                        error_log($err);
-                        if (preg_match('/SQLSTATE[23000]: Integrity constraint violation: 1062/', $err->getMessage())) {
-                            $response = $RES->errorMessage(202);
+                                $sth->execute();
+                            }
+    
+                            $mysql_connection->commit();
+                
+                            $response = $RES->validMessage(1);
+                
+                        } catch (PDOException $err) {
+                            error_log($err);
+                            if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1062/', $err->getMessage())) {
+                                $response = $RES->errorMessage(202);
+                            }
+                            if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1048/', $err->getMessage())) {
+                                $response = $RES->errorMessage(203);
+                            }
                         }
-                        if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1048/', $err->getMessage())) {
-                            $response = $RES->errorMessage(203);
-                        }
+    
+                    } else {
+                        $response = $RES->errorMessage(200);
                     }
 
                 } else {
-                    $response = $RES->errorMessage(200);
+                    $response = $RES->errorMessage(102);
                 }
     
             } else {

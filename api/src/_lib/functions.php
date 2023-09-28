@@ -13,6 +13,8 @@
                     return array('100' => 'Syntax Error: Fields are missing or incorrect.');
                 case 101:
                     return array('101' => 'Syntax Error: Special characters aren\'t allowed.');
+                case 102:
+                    return array('102' => 'File Error: You icon size exceeds the 2Mb allowed.');
 
                 // PDO MySQL errors/warnings
                 case 200:
@@ -24,7 +26,7 @@
                 case 203:
                     return array("203" => 'Server Error: One of the categories doesn\'t exist or you put wrong categories.');
                 case 210:
-                    return array("210" => 'Server Warning: No entries.');
+                    return array("210" => 'Server Error: Not found.');
                         
                 // API request errors/warnings
                 case 400:
@@ -42,6 +44,8 @@
                     return array("1" => 'Server: Added Successfully.');
                 case 2:
                     return array("2" => 'Server: Edited Successfully.');
+                case 3:
+                    return array("3" => 'Server: Deleted Successfully.');
                 default:
                     return null;
             }
