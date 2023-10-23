@@ -30,7 +30,7 @@ You can now use the API by following the documented URLs and endpoints below.
 
 Response are in JSON and requests body must be in JSON (except POST, examples bellow).
 
-- `GET /categories` : Retrieve a list of all technology categories.
+- `GET /` : Retrieve a list of all technology categories.
 
 - `POST /categories` : Create a new category.
 
