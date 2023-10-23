@@ -29,7 +29,7 @@
                 if ($result) {
                     $response = $result;
                 } else {
-                    $response = $RES->errorMessage(210);
+                    $response = $RES->errorMessage(211);
                 }
     
             } catch (Exception $err) {

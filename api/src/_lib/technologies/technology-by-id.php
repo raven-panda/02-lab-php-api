@@ -126,6 +126,12 @@
                 }
 
                 if ($request_method === "DELETE") {
+
+                    preg_match('/\/logos\/[a-z0-9_-]+\.[a-z0-9]+$/', $results['icon'], $icon_path);
+                    $icon_path = '.'. $icon_path[0];
+
+                    unlink($icon_path);
+
                     try {
 
                         $sql_deleteTech = 'DELETE FROM technologies WHERE `name` = :name';

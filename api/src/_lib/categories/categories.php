@@ -41,11 +41,11 @@
                     }
     
                     // If there's no results, return the error as response
-                    if (empty($results)) {
-                        $results = $RES->errorMessage(210);
+                    if ($results) {
+                        $response = $results;
+                    } else {
+                        $results = $RES->errorMessage(211);
                     }
-                    
-                    $response = $results;
     
                 } catch (Exception $err) {
                     error_log($err);

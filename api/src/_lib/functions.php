@@ -34,6 +34,8 @@
                     return array("203" => 'Server Error: One of the categories doesn\'t exist or you wrote wrong categories.');
                 case 210:
                     return array("210" => 'Server Error: Not found.');
+                case 211:
+                    return array("211" => 'Server Error: No entries.');
                         
                 // API request errors/warnings
                 case 400:
