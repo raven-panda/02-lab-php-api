@@ -1,4 +1,4 @@
 .consigne/
 node_modules/
 front/
-api/src/logos
+logos/
