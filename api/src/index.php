@@ -67,21 +67,21 @@
      * routes and functions trigger defining
      */
     $GLOBALS['routes'] = [
-        'GET:/' => 'getAllRoutes',
+        'GET:/api' => 'getAllRoutes',
 
         // Categories routes
-        'GET:/categories' => 'categories',
-        'POST:/categories' => 'categories',
-        'GET:/categories/{cat_id}' => 'categoryById',
-        'PUT:/categories/{cat_id}' => 'categoryById',
-        'DELETE:/categories/{cat_id}' => 'categoryById',
+        'GET:/api/categories' => 'categories',
+        'POST:/api/categories' => 'categories',
+        'GET:/api/categories/{cat_id}' => 'categoryById',
+        'PUT:/api/categories/{cat_id}' => 'categoryById',
+        'DELETE:/api/categories/{cat_id}' => 'categoryById',
 
         // Technologies routes
-        'GET:/technologies' => 'technologies',
-        'POST:/technologies' => 'technologies',
-        'GET:/technologies/{tech_id}' => 'technologyById',
-        'PUT:/technologies/{tech_id}' => 'technologyById',
-        'DELETE:/technologies/{tech_id}' => 'technologyById'
+        'GET:/api/technologies' => 'technologies',
+        'POST:/api/technologies' => 'technologies',
+        'GET:/api/technologies/{tech_id}' => 'technologyById',
+        'PUT:/api/technologies/{tech_id}' => 'technologyById',
+        'DELETE:/api/technologies/{tech_id}' => 'technologyById'
     ];
 
     /**
