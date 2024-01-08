@@ -78,29 +78,26 @@
                         $sth->bindParam(':new_cat', $name, PDO::PARAM_STR);
                         $sth->execute();
             
-                        $response = $RES->validMessage(1);
+                        http_response_code(200);
             
                     } catch (Exception $err) {
                         error_log($err);
-                        // If the query failed, checks if the category already exists to return the right response, else returns the basic database connection error
-                        if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1062/', $err->getMessage())) {
-                            $response = $RES->errorMessage(202);
-                        } else {
-                            $response = $RES->errorMessage(200);
-                        }
+                        http_response_code(500);
                     }
 
                 } else {
-                    $response = $RES->errorMessage(200);
+                    http_response_code(500);
                 }
 
             } else {
-                $response = $RES->errorMessage(101);
+                http_response_code(400);
             }
 
         } else {
-            $response = $RES->errorMessage(100);
+            http_response_code(400);
         }
+
+        $response = $RES->newResponse(http_response_code());
     }
 
     echo json_encode($response);
