@@ -6,7 +6,7 @@
 
         public function __construct() {}
 
-        public function setResponse($code, $success, $message, $type = null) {
+        public function setResponse($code, $success, $message = "", $type = null) {
             $this->code = $code;
             $this->success = $success;
             $this->message = $message;
