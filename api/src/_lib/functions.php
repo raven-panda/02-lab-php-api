@@ -24,65 +24,38 @@
         }
     }
     /**
-     * This is my validation and errors/warnings response messages manager.
+     * This is the response manager.
      */
     class MessageResponses {
-        /**
-         * The error manager function
-         * @param int Message code
-         */
-        function errorMessage($code) {
-            switch ($code) {
-                // Form invalidity errors/warnings
-                case 100:
-                    return array('100' => 'Syntax Error: Fields are missing or incorrect.');
-                case 101:
-                    return array('101' => 'Syntax Error: Special characters aren\'t allowed.');
-                case 102:
-                    return array('102' => 'File Error: You icon size exceeds the 2Mb allowed.');
-                case 103:
-                    return array('103' => 'Syntax Error: Ressources or categories is not JSON arrays.');
-                case 104:
-                    return array('104' => 'File Error: Failed to store the icon.');
-                case 105:
-                    return array('105' => 'File Error: Failed to store the new icon or the old one cannot be removed.');
+        private $not_found = "Ressource not found, path or method used may be incorrect.";
+        private $bad_request = "Bad request or incorrect body provided.";
+        private $internal_server_error = "An internal server error occured. Please try again later.";
 
-                // PDO MySQL errors/warnings
-                case 200:
-                    return array("200" => 'Server Error: There was a problem during your request, please try again.');
-                case 201:
-                    return array("201" => 'Server Warning: No changes.');
-                case 202:
-                    return array("202" => 'Server Error: Already exists.');
-                case 203:
-                    return array("203" => 'Server Error: One of the categories doesn\'t exist or you wrote wrong categories.');
-                case 210:
-                    return array("210" => 'Server Error: Not found.');
-                case 211:
-                    return array("211" => 'Server Error: No entries.');
-                        
-                // API request errors/warnings
-                case 400:
-                    return array("400" => "Request Error: Path or method used may be incorrect. Please read the README of this API on how to use it there: https://github.com/raven-panda/02-lab-php-api.git.");
-                default:
-                    return null;
-            }
-        }
         /**
-         * The validation messages manager function
+         * The response manager method
          * @param int Message code
          */
-        function validMessage($code) {
+        function newResponse($code, $type = null) {
+            $response = new Response();
+
             switch ($code) {
-                case 1:
-                    return array("1" => 'Server: Added Successfully.');
-                case 2:
-                    return array("2" => 'Server: Edited Successfully.');
-                case 3:
-                    return array("3" => 'Server: Deleted Successfully.');
+                case 200:
+                    $response->setResponse($code, true);
+                case 400:
+                    $response->setResponse($code, false, $this->bad_request, $type);
+                    break;
+                case 404:
+                    $response->setResponse($code, false, $this->not_found);
+                    break;
+                case 500:
+                    $response->setResponse($code, false, $this->internal_server_error);
+                    break;
                 default:
-                    return null;
+                    $response->setResponse(500, false, $this->internal_server_error);
+                    break;
             }
+
+            return $response->toArray();
         }
     }
     /**
