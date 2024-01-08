@@ -63,7 +63,7 @@
             }
         }
         echo json_encode($RES->errorMessage(400), JSON_UNESCAPED_SLASHES);
-        http_response_code(400);
+        http_response_code(404);
     }
 
     /**
