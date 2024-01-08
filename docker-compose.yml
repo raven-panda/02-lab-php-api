@@ -9,9 +9,11 @@ services:
       - type: bind
         source: ./api/src
         target: /var/www/html
-      - type: bind
-        source: ./api/php.ini
-        target: /usr/local/etc/php/php.ini
+
+      # Decomment this part if you want to edit php.ini
+      #- type: bind
+      #  source: ./api/php.ini
+      #  target: /usr/local/etc/php/php.ini
     environment:
       - MYSQL_HOST=database
       - MYSQL_DATABASE=api-db
