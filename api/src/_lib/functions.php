@@ -7,11 +7,12 @@
 
         public function __construct() {}
 
-        public function setResponse($code, $success, $message = null, $data = null) {
+        public function setResponse($code, $success, $options = null) {
             $this->code = $code;
             $this->success = $success;
-            $this->message = $message;
-            $this->data = $data;
+            if (isset($options['message'])) $this->message = $options['message'];
+            if (isset($options['type'])) $this->message = $this->message . " (" . $options['type'] . ")";
+            if (isset($options['data'])) $this->message = $options['data'];
         }
 
         public function toArray() {
@@ -36,20 +37,20 @@
          * The response manager method
          * @param int Message code
          */
-        function newResponse($code, $type = null) {
+        function newResponse($code, $type = null, $data = null) {
             $response = new Response();
 
             switch ($code) {
                 case 200:
-                    $response->setResponse($code, true);
+                    $response->setResponse($code, true, ['data' => $data]);
                 case 400:
-                    $response->setResponse($code, false, $this->bad_request, $type);
+                    $response->setResponse($code, false, ['message' => $this->bad_request, $type]);
                     break;
                 case 404:
-                    $response->setResponse($code, false, $this->not_found);
+                    $response->setResponse($code, false, ['message' => $this->not_found, 'type' => $type]);
                     break;
                 case 500:
-                    $response->setResponse($code, false, $this->internal_server_error);
+                    $response->setResponse($code, false, ['message' => $this->internal_server_error, 'type' => $type]);
                     break;
                 default:
                     $response->setResponse(500, false, $this->internal_server_error);
