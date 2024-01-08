@@ -1,6 +1,5 @@
 <?php
     include './_lib/functions.php';
-    header('Access-Control-Allow-Origin: http://php-dev-2.online:3000');
     header('Content-Type: application/json');
     $RES = new MessageResponses();
 
