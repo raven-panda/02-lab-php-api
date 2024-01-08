@@ -48,6 +48,9 @@
      */
     function router($url, $method, $RES) {
 
+        // Trims a potential enclosing slash, the router will not recognize the endpoint if there's one
+        $url = rtrim($url, '/');
+
         foreach($GLOBALS['routes'] as $pattern => $handler) {
             $fullUrl = $method . ':' . $url;
             $pattern = str_replace('{cat_id}', '([^/]+)', $pattern);
