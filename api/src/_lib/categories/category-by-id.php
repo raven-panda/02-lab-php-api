@@ -1,8 +1,7 @@
 <?php
     $request_method = $_SERVER['REQUEST_METHOD'];
-
-    //=-=-=-=-Script triggered by any of the method checked-=-=-=-=//
     $response = '';
+    $response_data = null;
 
     // Retrieving the name of the category in the URL
     $paths = preg_split('~/(?=[^/]*$)~', htmlspecialchars($_SERVER['REQUEST_URI']));
