@@ -3,24 +3,25 @@
         private $code;
         private $success;
         private $message;
+        private $data;
 
         public function __construct() {}
 
-        public function setResponse($code, $success, $message = "", $type = null) {
+        public function setResponse($code, $success, $message = null, $data = null) {
             $this->code = $code;
             $this->success = $success;
             $this->message = $message;
-            if ($type) {
-                $this->message = $this->message . " (" . $type . ")";
-            }
+            $this->data = $data;
         }
 
         public function toArray() {
-            return array(
+            $response_array = array(
                 'code' => $this->code,
-                'success' => $this->success,
-                'message' => $this->message
+                'success' => $this->success
             );
+            if ($this->message) $response_array['message'] = $this->message;
+            if ($this->data) $response_array['data'] = $this->data;
+            return $response_array;
         }
     }
     /**
