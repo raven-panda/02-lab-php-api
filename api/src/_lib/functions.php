@@ -37,12 +37,17 @@
          * The response manager method
          * @param int Message code
          */
-        function newResponse($code, $type = null, $data = null) {
+        function newResponse($code, $options = null) {
             $response = new Response();
+            $type = "";
+            $data = "";
+            if (isset($options['type'])) $type = $options['type'];
+            if (isset($options['data'])) $data = $options['data'];
 
             switch ($code) {
                 case 200:
                     $response->setResponse($code, true, ['data' => $data]);
+                    break;
                 case 400:
                     $response->setResponse($code, false, ['message' => $this->bad_request, $type]);
                     break;
@@ -53,7 +58,7 @@
                     $response->setResponse($code, false, ['message' => $this->internal_server_error, 'type' => $type]);
                     break;
                 default:
-                    $response->setResponse(500, false, $this->internal_server_error);
+                    $response->setResponse(500, false, ['message' => $this->internal_server_error]);
                     break;
             }
 
