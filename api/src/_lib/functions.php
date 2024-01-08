@@ -12,7 +12,7 @@
             $this->success = $success;
             if (isset($options['message'])) $this->message = $options['message'];
             if (isset($options['type'])) $this->message = $this->message . " (" . $options['type'] . ")";
-            if (isset($options['data'])) $this->message = $options['data'];
+            if (isset($options['data'])) $this->data = $options['data'];
         }
 
         public function toArray() {
