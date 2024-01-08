@@ -1,4 +1,28 @@
 <?php
+    class Response {
+        private $code;
+        private $success;
+        private $message;
+
+        public function __construct() {}
+
+        public function setResponse($code, $success, $message, $type = null) {
+            $this->code = $code;
+            $this->success = $success;
+            $this->message = $message;
+            if ($type) {
+                $this->message = $this->message . " (" . $type . ")";
+            }
+        }
+
+        public function toArray() {
+            return array(
+                'code' => $this->code,
+                'success' => $this->success,
+                'message' => $this->message
+            );
+        }
+    }
     /**
      * This is my validation and errors/warnings response messages manager.
      */
