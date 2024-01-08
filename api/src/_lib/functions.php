@@ -39,8 +39,8 @@
          */
         function newResponse($code, $options = null) {
             $response = new Response();
-            $type = "";
-            $data = "";
+            $type = null;
+            $data = null;
             if (isset($options['type'])) $type = $options['type'];
             if (isset($options['data'])) $data = $options['data'];
 
