@@ -3,9 +3,7 @@
     header('Content-Type: application/json');
     $RES = new MessageResponses();
 
-    /**
-     * Displays all available routes.
-     */
+    /** Function for /api/ endpoint */
     function getAllroutes($RES) {
         $list_routes = array();
         foreach ($GLOBALS['routes'] as $key => $value) {
@@ -13,31 +11,20 @@
         }
         echo json_encode($list_routes);
     }
-    /**
-     * Displays categories with the GET method,
-     * or add one with the POST method.
-     */
+    /** Function for /api/categories/ endpoint */
     function categories($RES) {
         include './_lib/categories/categories.php';
     }
-    /**
-     * Checks if the category exists, display its name with the GET method,
-     * update it with the PUT method and the appropriate JSON,
-     * delete it with the DELETE method.
-     */
+    /** Function for /api/categories/{id} endpoint */
     function categoryById($RES, $category) {
         include './_lib/categories/category-by-id.php';
     }
 
-    /**
-     * Displays the available technologies under the chosen category
-     */
+    /** Function for /api/technologies/ endpoint */
     function technologies($RES) {
         include './_lib/technologies/technologies.php';
     }
-    /**
-     * Technology by id
-     */
+    /** Function for /api/technologies/{id} endpoint */
     function technologyById($RES, $technology) {
         include './_lib/technologies/technology-by-id.php';
     }
