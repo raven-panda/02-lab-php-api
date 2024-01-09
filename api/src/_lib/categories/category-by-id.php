@@ -14,29 +14,23 @@
         if ($mysql_connection) {
             
             // Selecting the category with its attached technologies in the database
-            $sql_selectCategories = "SELECT c.name AS category, GROUP_CONCAT(t.name SEPARATOR ', ') AS technologies FROM categories AS c
-                                    LEFT JOIN cat_tech AS ct ON c.id = ct.cat_id
-                                    LEFT JOIN technologies AS t ON ct.tech_id = t.id
-                                    GROUP BY c.name
-                                    HAVING category = :category";
+            $sql_selectCategories = "SELECT t.name, t.ressources, t.categories, t.icon
+                FROM categories AS c
+                LEFT JOIN cat_tech AS ct ON c.id = ct.cat_id
+                LEFT JOIN technologies AS t ON ct.tech_id = t.id
+                WHERE c.name = :category
+                GROUP BY c.name, t.id";
             $sth = $mysql_connection->prepare($sql_selectCategories);
 
             $sth->bindParam(':category', $cat_name, PDO::PARAM_STR);
     
             $sth->execute();
 
-            $results = $sth->fetch(PDO::FETCH_ASSOC);
+            $results = $sth->fetchAll(PDO::FETCH_ASSOC);
 
             if (!empty($results)) {
 
-                // Technologies key is exploded by the comma, so it will return an array of the technologies
-                if ($results['technologies']) {
-                    $results['technologies'] = explode(', ', $results['technologies']);
-                } else {
-                    $results['technologies'] = array();
-                }
-
-                $response = $results;
+                $response_data = $results;
 
                 // If the method is PUT, trigger the 'edit' script
                 if ($request_method === 'PUT') {
