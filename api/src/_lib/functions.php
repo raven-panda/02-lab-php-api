@@ -32,6 +32,7 @@
         private $not_found = "Ressource not found, path or method used may be incorrect.";
         private $bad_request = "Bad request or incorrect body provided.";
         private $internal_server_error = "An internal server error occured. Please try again later.";
+        private $already_exists = "Your request enter in conflicts with another ressource.";
 
         /**
          * The response manager method
@@ -53,6 +54,9 @@
                     break;
                 case 404:
                     $response->setResponse($code, false, ['message' => $this->not_found, 'type' => $type]);
+                    break;
+                case 409:
+                    $response->setResponse($code, false, ['message' => $this->already_exists, 'type' => $type]);
                     break;
                 case 500:
                     $response->setResponse($code, false, ['message' => $this->internal_server_error, 'type' => $type]);
