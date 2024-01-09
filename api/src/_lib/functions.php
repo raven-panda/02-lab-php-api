@@ -34,7 +34,7 @@
         private $bad_request = "Bad request or incorrect body provided.";
         private $internal_server_error = "An internal server error occured. Please try again later.";
         private $already_exists = "Your request enter in conflicts with another ressource.";
-        private $entity_too_large = "The file you provided is too large. 2Mb maximum are allowed.";
+        private $entity_too_large = "The ressource you provided is too large. 2Mb maximum are allowed.";
 
         /**
          * The response manager method
