@@ -22,6 +22,7 @@
             );
             if ($this->message) $response_array['message'] = $this->message;
             if ($this->data) $response_array['data'] = $this->data;
+                else $response_array['data'] = array();
             return $response_array;
         }
     }
