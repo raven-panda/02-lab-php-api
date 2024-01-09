@@ -47,9 +47,6 @@
         // Setting the max icon size
         $upload_max_size = trim(ini_get('upload_max_filesize'), 'M') * 1024 * 1024;
 
-        print_r($_SERVER['CONTENT_LENGTH']);
-        print_r(' '. $upload_max_size);
-
         if ($_SERVER['CONTENT_LENGTH'] < $upload_max_size) {
 
             if (isset($_POST['name']) && !empty($_POST['name'])
