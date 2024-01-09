@@ -9,7 +9,8 @@
         foreach ($GLOBALS['routes'] as $key => $value) {
             $list_routes[] = $key;
         }
-        echo json_encode($list_routes);
+
+        echo json_encode($RES->newResponse(http_response_code(), ['data' => $list_routes]));
     }
     /** Function for /api/categories/ endpoint */
     function categories($RES) {
