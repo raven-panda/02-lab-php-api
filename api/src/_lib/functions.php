@@ -34,6 +34,7 @@
         private $bad_request = "Bad request or incorrect body provided.";
         private $internal_server_error = "An internal server error occured. Please try again later.";
         private $already_exists = "Your request enter in conflicts with another ressource.";
+        private $entity_too_large = "The file you provided is too large. 2Mb maximum are allowed.";
 
         /**
          * The response manager method
@@ -58,6 +59,9 @@
                     break;
                 case 409:
                     $response->setResponse($code, false, ['message' => $this->already_exists, 'type' => $type]);
+                    break;
+                case 413:
+                    $response->setResponse($code, false, ['message' => $this->entity_too_large]);
                     break;
                 case 500:
                     $response->setResponse($code, false, ['message' => $this->internal_server_error, 'type' => $type]);
