@@ -12,22 +12,31 @@
 
         $mysql_connection = databaseConnection();
 
-        // Selecting the technology in the database
-        $sql_selectTech = 'SELECT `name`, categories, ressources, icon FROM technologies WHERE `name` = :name';
-        $sth = $mysql_connection->prepare($sql_selectTech);
-
-        $sth->bindParam(':name', $tech_name, PDO::PARAM_STR);
-
+        $sql_checkTech = "SELECT id FROM technologies WHERE name = :technology";
+        $sth = $mysql_connection->prepare($sql_checkTech);
+        $sth->bindParam(':technology', $tech_name, PDO::PARAM_STR);
         $sth->execute();
 
-        $results = $sth->fetch(PDO::FETCH_ASSOC);
+        $tech_exists = $sth->fetch(PDO::FETCH_ASSOC);
+        unset($sth);
 
-        if (!empty($results)) {
+        if (!empty($tech_exists)) {
+
+            // Selecting the technology in the database
+            $sql_selectTech = 'SELECT `name`, categories, ressources, icon FROM technologies WHERE `name` = :name';
+            $sth = $mysql_connection->prepare($sql_selectTech);
+
+            $sth->bindParam(':name', $tech_name, PDO::PARAM_STR);
+
+            $sth->execute();
+
+            $results = $sth->fetch(PDO::FETCH_ASSOC);
+
             // Sanitizing the ressources and categories JSON in order to prevent multiple backslahes or returning a 'stringified' array.
             $results['ressources'] = sanitizeObject(json_decode($results['ressources'], true));
             $results['categories'] = sanitizeObject(json_decode($results['categories'], true));
             
-            $response = $results;
+            if ($request_method === "GET" && !empty($results)) $response_data = $results;
 
             // Edit technology script
             if ($request_method === "PUT") {
@@ -35,11 +44,11 @@
                 // Parsing the PUT form-data request
                 $data = file_get_contents('php://input');
                 $_PUT = parse_raw_http_request($data);
-    
+
                 // Checking all the fields
                 if (isset($_PUT['name']) && isset($_PUT['ressources']) && isset($_PUT['icon']) && isset($_PUT['categories'])
                 && isset($_PUT['icon']['file_name']) && isset($_PUT['icon']["file_type"]) && isset($_PUT['icon']['file_data']) && isset($_PUT['icon']['file_size'])) {
-    
+
                     // Setting the icon max size allowed (2Mb)
                     $upload_max_size = 2 * 1024 * 1024;
                     
@@ -47,7 +56,7 @@
                     $name = strtolower(htmlspecialchars($_PUT['name']));
                     $categories = sanitizeObject(json_decode($_PUT['categories']));
                     $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
-    
+
                     $ressources = sanitizeObject(json_decode($_PUT['ressources'], true));
                     $json_ress = json_encode($ressources, JSON_UNESCAPED_SLASHES);
 
@@ -86,40 +95,34 @@
                                         $sth->bindParam(':old_name', $tech_name, PDO::PARAM_STR);
                     
                                         $sth->execute();
-                    
-                                        $row = $sth->rowCount();
                 
-                                        if ($row && $row > 0) {
-                                            $response = $RES->validMessage(2);
-                                        } else {
-                                            $response = $RES->errorMessage(201);
-                                        }
+                                        http_response_code(200);
                 
-                                    } catch (Exception $err) {
+                                    } catch (PDOException $err) {
                                         error_log($err);
-                                        $response = $RES->errorMessage(200);
+                                        http_response_code(500);
                                     }
 
                                 } else {
-                                    $response = $RES->errorMessage(102);
+                                    http_response_code(409);
                                 }
 
                             } else {
-                                $response = $RES->errorMessage(101);
+                                http_response_code(400);
                             }
 
                         } else {
-                            $response = $RES->errorMessage(105);
+                            http_response_code(500);
                         }
                         
                     } else {
-                        $response = $RES->errorMessage(103);
+                        http_response_code(400);
                     }
                         
                 } else {
-                    $response = $RES->errorMessage(100);
+                    http_response_code(400);
                 }
-    
+
             }
 
             if ($request_method === "DELETE") {
@@ -138,28 +141,23 @@
 
                     $sth->execute();
 
-                    $row = $sth->rowCount();
-
-                    if ($row && $row > 0) {
-                        $response = $RES->validMessage(3);
-                    } else {
-                        $response = $RES->errorMessage(201);
-                    }
+                    http_response_code(200);
 
                 } catch (Exception $err) {
                     error_log($err);
-                    $response = $RES->errorMessage(200);
+                    http_response_code(500);
                 }
             }
-            
-        } else {
-            $response = $RES->errorMessage(210);
-        }
 
-    } catch (Exception $err) {
+            } else {
+                http_response_code(404);
+            }
+
+    } catch (PDOException $err) {
         error_log($err);
-        $response = $RES->errorMessage(200);
+        http_response_code(500);
     }
 
+    $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
     echo json_encode($response, JSON_UNESCAPED_SLASHES);
 ?>
