@@ -65,8 +65,6 @@
                                 
                                 $sth->execute();
         
-                                $row = $sth->rowCount();
-        
                                 // Checking if it changed anything to send the appropriate response
                                 http_response_code(200);
         
