@@ -44,43 +44,43 @@
                 $data = file_get_contents('php://input');
                 $_PUT = parse_raw_http_request($data);
 
-                // Checking all the fields
-                if (isset($_PUT['name']) && isset($_PUT['ressources']) && isset($_PUT['icon']) && isset($_PUT['categories'])
-                && isset($_PUT['icon']['file_name']) && isset($_PUT['icon']["file_type"]) && isset($_PUT['icon']['file_data']) && isset($_PUT['icon']['file_size'])) {
+                // Setting the max icon size
+                $upload_max_size = trim(ini_get('upload_max_filesize'), 'M') * 1024 * 1024;
 
-                    // Setting the icon max size allowed (2Mb)
-                    $upload_max_size = 2 * 1024 * 1024;
-                    
-                    // Sanitizing fields
-                    $name = strtolower(htmlspecialchars($_PUT['name']));
-                    $categories = sanitizeObject(json_decode($_PUT['categories']));
-                    $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
+                if ($_SERVER['CONTENT_LENGTH'] < $upload_max_size) {
 
-                    $ressources = sanitizeObject(json_decode($_PUT['ressources'], true));
-                    $json_ress = json_encode($ressources, JSON_UNESCAPED_SLASHES);
+                    // Checking all the fields
+                    if (isset($_PUT['name']) && isset($_PUT['ressources']) && isset($_PUT['icon']) && isset($_PUT['categories'])
+                    && isset($_PUT['icon']['file_name']) && isset($_PUT['icon']["file_type"]) && isset($_PUT['icon']['file_data']) && isset($_PUT['icon']['file_size'])) {
+                        
+                        // Sanitizing fields
+                        $name = strtolower(htmlspecialchars($_PUT['name']));
+                        $categories = sanitizeObject(json_decode($_PUT['categories']));
+                        $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
 
-                    if ($categories && $ressources) {
-                    
-                        $icon_data = $_PUT['icon']['file_data'];
-                        $icon_name = strtolower(htmlspecialchars($_PUT['icon']['file_name']));
-                        $icon_name = preg_replace('/\s/', '_', $icon_name);
-                        $icon_size = htmlspecialchars($_PUT['icon']['file_size']);
+                        $ressources = sanitizeObject(json_decode($_PUT['ressources'], true));
+                        $json_ress = json_encode($ressources, JSON_UNESCAPED_SLASHES);
 
-                        $icon_path = 'http://php-dev-2.online/logos/'. $icon_name;
-                        preg_match('/\/logos\/[a-z0-9_-]+\.[a-z0-9]+$/', $results['icon'], $icon_old_path);
-                        $icon_old_path = '.'. $icon_old_path[0];
+                        if ($categories && $ressources) {
+                        
+                            $icon_data = $_PUT['icon']['file_data'];
+                            $icon_name = strtolower(htmlspecialchars($_PUT['icon']['file_name']));
+                            $icon_name = preg_replace('/\s/', '_', $icon_name);
+                            $icon_size = htmlspecialchars($_PUT['icon']['file_size']);
 
-                        if (file_exists($icon_old_path)) {
-                            unlink($icon_old_path);
-                        }
+                            $icon_path = 'http://php-dev-2.online/logos/'. $icon_name;
+                            preg_match('/\/logos\/[a-z0-9_-]+\.[a-z0-9]+$/', $results['icon'], $icon_old_path);
+                            $icon_old_path = '.'. $icon_old_path[0];
 
-                        if (file_put_contents('./logos/'. $icon_name, $icon_data)) {
+                            if (file_exists($icon_old_path)) {
+                                unlink($icon_old_path);
+                            }
 
-                            // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
-                            if (preg_match('/^[a-z0-9_-]+$/', $name)) {
+                            if (file_put_contents('./logos/'. $icon_name, $icon_data)) {
 
-                                if ($icon_size < $upload_max_size) {
-                
+                                // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
+                                if (preg_match('/^[a-z0-9_-]+$/', $name)) {
+
                                     try {
 
                                         // Updating the technology with given values
@@ -103,23 +103,23 @@
                                     }
 
                                 } else {
-                                    http_response_code(409);
+                                    http_response_code(400);
                                 }
 
                             } else {
-                                http_response_code(400);
+                                http_response_code(500);
                             }
-
+                            
                         } else {
-                            http_response_code(500);
+                            http_response_code(400);
                         }
-                        
+                            
                     } else {
                         http_response_code(400);
                     }
-                        
+
                 } else {
-                    http_response_code(400);
+                    http_response_code(413);
                 }
 
             }
