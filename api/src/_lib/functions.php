@@ -40,7 +40,7 @@
          * The response manager method
          * @param int Message code
          */
-        function newResponse($code, $options = null) {
+        public function newResponse($code, $options = null) {
             $response = new Response();
             $type = null;
             $data = null;
