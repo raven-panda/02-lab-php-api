@@ -44,50 +44,52 @@
     // If the method is POST, trigger the 'add' script
     } else if ($request_method === "POST") {
 
-        if (isset($_POST['name']) && !empty($_POST['name'])
-            // Checking if all the required fields are set and non empty
-            && isset($_POST['ressources']) && !empty($_POST['ressources'])
-            && isset($_POST['categories']) && !empty($_POST['categories'])
-            && isset($_FILES['icon']) && !empty($_FILES['icon'])
-            // Checking if all the fields in the icon file are set and non empty
-            && isset($_FILES['icon']['name']) && !empty($_FILES['icon']['name'])
-            && isset($_FILES['icon']['tmp_name']) && !empty($_FILES['icon']['tmp_name'])
-            && isset($_FILES['icon']['size']) && !empty($_FILES['icon']['size'])
-            && isset($_FILES['icon']['type']) && !empty($_FILES['icon']['type'])) {
+        // Setting the max icon size
+        $upload_max_size = trim(ini_get('upload_max_filesize'), 'M') * 1024 * 1024;
 
-            // Setting the max icon size
-            $upload_max_size = 2 * 1024 * 1024;
+        print_r($_SERVER['CONTENT_LENGTH']);
+        print_r(' '. $upload_max_size);
 
-            // Sanitizing the fields
-            $name = strtolower(htmlspecialchars($_POST['name']));
-    
-            $ressources = sanitizeObject(json_decode($_POST['ressources'], true));
-            $json_ress = json_encode($ressources, JSON_UNESCAPED_SLASHES);
-    
-            $categories = sanitizeObject(json_decode($_POST['categories']));
-            $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
+        if ($_SERVER['CONTENT_LENGTH'] < $upload_max_size) {
 
-            if ($categories && $ressources) {
+            if (isset($_POST['name']) && !empty($_POST['name'])
+                // Checking if all the required fields are set and non empty
+                && isset($_POST['ressources']) && !empty($_POST['ressources'])
+                && isset($_POST['categories']) && !empty($_POST['categories'])
+                && isset($_FILES['icon']) && !empty($_FILES['icon'])
+                // Checking if all the fields in the icon file are set and non empty
+                && isset($_FILES['icon']['name']) && !empty($_FILES['icon']['name'])
+                && isset($_FILES['icon']['tmp_name']) && !empty($_FILES['icon']['tmp_name'])
+                && isset($_FILES['icon']['size']) && !empty($_FILES['icon']['size'])
+                && isset($_FILES['icon']['type']) && !empty($_FILES['icon']['type'])) {
 
-                // Putting icon fields in variables
-                $icon = $_FILES['icon'];
-                $icon_name = htmlspecialchars($icon['name']);
-                $icon_name = preg_replace('/\s/', '_', $icon_name);
-                $icon_tmp = htmlspecialchars($icon['tmp_name']);
-                $icon_size = htmlspecialchars($icon['size']);
-                $icon_type = htmlspecialchars($icon['type']);
-                
-                $icon_data = file_get_contents($icon_tmp);
-                $icon_path = 'http://php-dev-2.online/logos/'. $icon_name;
+                // Sanitizing the fields
+                $name = strtolower(htmlspecialchars($_POST['name']));
+        
+                $ressources = sanitizeObject(json_decode($_POST['ressources'], true));
+                $json_ress = json_encode($ressources, JSON_UNESCAPED_SLASHES);
+        
+                $categories = sanitizeObject(json_decode($_POST['categories']));
+                $json_categories = json_encode($categories, JSON_UNESCAPED_SLASHES);
 
-                if (file_put_contents('./logos/'. $icon_name, $icon_data)) {
+                if ($categories && $ressources) {
 
-                    // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
-                    if (preg_match('/^[a-z0-9_-]+$/', $name)) {
-                        
-                        // Checking if icon's size exceeds the 2Mb allowed
-                        if ($icon_size < $upload_max_size) {
-                            
+                    // Putting icon fields in variables
+                    $icon = $_FILES['icon'];
+                    $icon_name = htmlspecialchars($icon['name']);
+                    $icon_name = preg_replace('/\s/', '_', $icon_name);
+                    $icon_tmp = htmlspecialchars($icon['tmp_name']);
+                    $icon_size = htmlspecialchars($icon['size']);
+                    $icon_type = htmlspecialchars($icon['type']);
+                    
+                    $icon_data = file_get_contents($icon_tmp);
+                    $icon_path = 'http://php-dev-2.online/logos/'. $icon_name;
+
+                    if (file_put_contents('./logos/'. $icon_name, $icon_data)) {
+
+                        // Checking if the technology name sent contains only alphanumeric characters, dash and underscore
+                        if (preg_match('/^[a-z0-9_-]+$/', $name)) {
+                                
                             try {
                                 
                                 $mysql_connection = databaseConnection();
@@ -129,17 +131,17 @@
                                         break;
                                 }
                             }
-                            
+                        
                         } else {
-                            http_response_code(413);
+                            http_response_code(500);
                         }
-                    
+
                     } else {
                         http_response_code(500);
                     }
 
                 } else {
-                    http_response_code(500);
+                    http_response_code(400);
                 }
 
             } else {
@@ -147,7 +149,7 @@
             }
 
         } else {
-            http_response_code(400);
+            http_response_code(413);
         }
 
         $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
