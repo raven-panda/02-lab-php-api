@@ -25,20 +25,20 @@
      * update it with the PUT method and the appropriate JSON,
      * delete it with the DELETE method.
      */
-    function categoryById($RES) {
+    function categoryById($RES, $category) {
         include './_lib/categories/category-by-id.php';
     }
 
     /**
      * Displays the available technologies under the chosen category
      */
-    function technologies($RES, $category) {
+    function technologies($RES) {
         include './_lib/technologies/technologies.php';
     }
     /**
      * Technology by id
      */
-    function technologyById($RES, $category) {
+    function technologyById($RES, $technology) {
         include './_lib/technologies/technology-by-id.php';
     }
 
