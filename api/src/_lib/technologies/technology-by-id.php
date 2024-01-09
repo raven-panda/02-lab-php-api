@@ -1,12 +1,11 @@
 <?php
     $request_method = $_SERVER['REQUEST_METHOD'];
-    
+
     $response = '';
     $response_data = null;
 
     // Retrieving the name of the technology in the URL
-    $paths = preg_split('~/(?=[^/]*$)~', htmlspecialchars($_SERVER['REQUEST_URI']));
-    $tech_name = end($paths);
+    $tech_name = $technology[0];
 
     try {
 
