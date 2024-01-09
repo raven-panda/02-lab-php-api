@@ -2,6 +2,7 @@
     $request_method = $_SERVER['REQUEST_METHOD'];
 
     $response = '';
+    $response_data = null;
 
     // If the method is POST, list all the technologies
     if ($request_method === 'GET') {
@@ -26,33 +27,28 @@
                     $result[] = $row;
                 }
     
-                if ($result) {
-                    $response = $result;
-                } else {
-                    $response = $RES->errorMessage(211);
-                }
+                http_response_code(200);
+                $response_data = $result;
     
             } catch (Exception $err) {
                 error_log($err);
-                $response = 'server-error';
+                http_response_code(500);
             }
             
         } else {
-            $response = $RES->errorMessage(200);
+            http_response_code(500);
         }
 
-        echo json_encode($response, JSON_UNESCAPED_SLASHES);
+        $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
 
     // If the method is POST, trigger the 'add' script
     } else if ($request_method === "POST") {
 
         if (isset($_POST['name']) && !empty($_POST['name'])
-
             // Checking if all the required fields are set and non empty
             && isset($_POST['ressources']) && !empty($_POST['ressources'])
             && isset($_POST['categories']) && !empty($_POST['categories'])
             && isset($_FILES['icon']) && !empty($_FILES['icon'])
-
             // Checking if all the fields in the icon file are set and non empty
             && isset($_FILES['icon']['name']) && !empty($_FILES['icon']['name'])
             && isset($_FILES['icon']['tmp_name']) && !empty($_FILES['icon']['tmp_name'])
@@ -92,79 +88,71 @@
                         // Checking if icon's size exceeds the 2Mb allowed
                         if ($icon_size < $upload_max_size) {
                             
-                            $mysql_connection = databaseConnection();
-                            
-                            if ($mysql_connection) {
+                            try {
                                 
-                                try {
+                                $mysql_connection = databaseConnection();
+                                // Inserting technology in the database, and the foreign keys IDs associated.
+                                // Using transaction here, so if one of the two query has an error, the queries are canceled.
+                                $mysql_connection->beginTransaction();
             
-                                    // Inserting technology in the database, and the foreign keys IDs associated.
-                                    // Using transaction here, so if one of the two query has an error, the queries are canceled.
-                                    $mysql_connection->beginTransaction();
-                
-                                    $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon) VALUES (:name, :category, :ressources, :icon);';
-                                    $sth = $mysql_connection->prepare($sql_insertTech);
-                            
+                                $sql_insertTech = 'INSERT INTO technologies (name, categories, ressources, icon) VALUES (:name, :category, :ressources, :icon);';
+                                $sth = $mysql_connection->prepare($sql_insertTech);
+                        
+                                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
+                                $sth->bindParam(':icon', $icon_path, PDO::PARAM_STR);
+                                $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
+                                
+                                $sth->execute();
+                                
+                                foreach ($categories as $category) {
+                                    $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
+                                    $sth = $mysql_connection->prepare($sql_CatTech);
+                                    
                                     $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                    $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
-                                    $sth->bindParam(':icon', $icon_path, PDO::PARAM_STR);
-                                    $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
+                                    $sth->bindParam(':category', $category, PDO::PARAM_STR);
                                     
                                     $sth->execute();
-                                    
-                                    foreach ($categories as $category) {
-                                        $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
-                                        $sth = $mysql_connection->prepare($sql_CatTech);
-                                        
-                                        $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                        $sth->bindParam(':category', $category, PDO::PARAM_STR);
-                                        
-                                        $sth->execute();
-                                    }
-                                    
-                                    $mysql_connection->commit();
-
-                                    $response = $RES->validMessage(1);
-                                    
-                                } catch (PDOException $err) {
-                                    error_log($err);
-                                    // Checking if the error is that the technology already exists, or if one of the given categories doesn't exist.
-                                    if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1062/', $err->getMessage())) {
-                                        $response = $RES->errorMessage(202);
-                                    } else if (preg_match('/SQLSTATE\[23000\]\: Integrity constraint violation\: 1048/', $err->getMessage())) {
-                                        $response = $RES->errorMessage(203);
-                                    } else {
-                                        $response = $RES->errorMessage(200);
-                                    }
                                 }
                                 
-                            } else {
-                                $response = $RES->errorMessage(200);
+                                $mysql_connection->commit();
+                                http_response_code(200);
+                                
+                            } catch (PDOException $err) {
+                                error_log($err);
+                                switch ($err->getCode()) {
+                                    case 23000:
+                                        http_response_code(409);
+                                        break;
+                                    default:
+                                        http_response_code(500);
+                                        break;
+                                }
                             }
                             
-                            
                         } else {
-                            $response = $RES->errorMessage(102);
+                            http_response_code(413);
                         }
                     
                     } else {
-                        $response = $RES->errorMessage(101);
+                        http_response_code(500);
                     }
+
                 } else {
-                    $response = $RES->errorMessage(104);
+                    http_response_code(500);
                 }
 
             } else {
-                $response = $RES->errorMessage(103);
+                http_response_code(400);
             }
 
         } else {
-            $response = $RES->errorMessage(100);
+            http_response_code(400);
         }
 
-        echo json_encode($response);
+        $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
 
-    } else {
-        echo json_encode($RES->errorMessage(400));
     }
+
+    echo json_encode($response);
 ?>
