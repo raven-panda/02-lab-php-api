@@ -60,23 +60,19 @@
                                 $row = $sth->rowCount();
         
                                 // Checking if it changed anything to send the appropriate response
-                                if ($row && $row > 0) {
-                                    $response = $RES->validMessage(2);
-                                } else {
-                                    $response = $RES->errorMessage(201);
-                                }
+                                http_response_code(200);
         
                             } catch (Exception $err) {
                                 error_log($err);
-                                $response = $RES->errorMessage(200);
+                                http_response_code(500);
                             }
 
                         } else {
-                            $response = $RES->errorMessage(101);
+                            http_response_code(400);
                         }
     
                     } else {
-                        $response = $RES->errorMessage(100);
+                        http_response_code(400);
                     }
                 }
     
@@ -96,29 +92,26 @@
                         $row = $sth->rowCount();
     
                         // Checking if it changed anything to send the appropriate response
-                        if ($row && $row > 0) {
-                            $response = $RES->validMessage(3);
-                        } else {
-                            $response = $RES->errorMessage(201);
-                        }
+                        http_response_code(200);
 
                     } catch (Exception $err) {
                         error_log($err);
-                        $response = $RES->errorMessage(200);
+                        http_response_code(500);
                     }
                 }
 
-            } else {
-                $response = $RES->errorMessage(210);
             }
+
         } else {
-            $response = $RES->errorMessage(200);
+            http_response_code(400);
         }
 
     } catch (Exception $err) {
         error_log($err);
-        $response = $RES->errorMessage(200);
+        print_r($err->getMessage());
+        http_response_code(500);
     }
 
+    $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
     echo json_encode($response);
 ?>
