@@ -57,7 +57,9 @@ CREATE TABLE IF NOT EXISTS `api-db`.`cat_tech` (
     FOREIGN KEY (`tech_id`)
     REFERENCES `api-db`.`technologies` (`id`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
+    ON UPDATE CASCADE,
+    CONSTRAINT `unique_cat_tech`
+      UNIQUE (`cat_id`, `tech_id`))
 ENGINE = InnoDB;
 
 
