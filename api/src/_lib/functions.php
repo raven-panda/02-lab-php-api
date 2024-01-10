@@ -52,7 +52,7 @@
                     $response->setResponse($code, true, ['data' => $data]);
                     break;
                 case 400:
-                    $response->setResponse($code, false, ['message' => $this->bad_request, $type]);
+                    $response->setResponse($code, false, ['message' => $this->bad_request, 'type' => $type]);
                     break;
                 case 404:
                     $response->setResponse($code, false, ['message' => $this->not_found, 'type' => $type]);
