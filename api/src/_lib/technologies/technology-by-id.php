@@ -3,6 +3,7 @@
 
     $response = '';
     $response_data = null;
+    $response_type = null;
 
     // Retrieving the name of the technology in the URL
     $tech_name = $technology[0];
@@ -100,38 +101,22 @@
                                         $sth->execute();
                                         unset($sth);
 
-                                        try {
+                                        $sql_deloldfk = 'DELETE FROM cat_tech WHERE tech_id = (SELECT id FROM technologies WHERE `name` = :name)';
+                                        $sth = $mysql_connection->prepare($sql_deloldfk);
+                                        $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                        $sth->execute();
+                                        unset($sth);
 
-                                            $sql_deloldfk = 'DELETE FROM cat_tech WHERE tech_id = (SELECT id FROM technologies WHERE `name` = :name)';
-                                            $sth = $mysql_connection->prepare($sql_deloldfk);
+                                        foreach ($categories as $category) {
+                                            $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id)
+                                                            VALUES ((SELECT id FROM categories WHERE `name` = :category),
+                                                                    (SELECT id FROM technologies WHERE `name` = :name))';
+                                            $sth = $mysql_connection->prepare($sql_CatTech);
+                                            
                                             $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                            $sth->execute();
+                                            $sth->bindParam(':category', $category, PDO::PARAM_STR);
+                                            $test = $sth->execute();
                                             unset($sth);
-
-                                            foreach ($categories as $category) {
-                                                $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id)
-                                                                VALUES ((SELECT id FROM categories WHERE `name` = :category),
-                                                                        (SELECT id FROM technologies WHERE `name` = :name))';
-                                                $sth = $mysql_connection->prepare($sql_CatTech);
-                                                
-                                                $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                                $sth->bindParam(':category', $category, PDO::PARAM_STR);
-                                                $test = $sth->execute();
-                                                unset($sth);
-                                            }
-                                            http_response_code(200);
-        
-                                        } catch (PDOException $err) {
-                                            $mysql_connection->rollBack();
-                                            switch ($err->getCode()) {
-                                                case 23000:
-                                                    http_response_code(400);
-                                                    $response_type = "category not found";
-                                                    break;
-                                                default:
-                                                    http_response_code(500);
-                                                    break;
-                                            }
                                         }
                                         
                                         $mysql_connection->commit();
@@ -139,8 +124,16 @@
                                             
                                     } catch (PDOException $err) {
                                         $mysql_connection->rollBack();
+                                        switch ($err->getCode()) {
+                                            case 23000:
+                                                http_response_code(400);
+                                                $response_type = "category not found";
+                                                break;
+                                            default:
+                                                http_response_code(500);
+                                                break;
+                                        }
                                         error_log($err);
-                                        http_response_code(500);
                                     }
 
                                 } else {
@@ -219,6 +212,6 @@
         http_response_code(500);
     }
 
-    $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
+    $response = $RES->newResponse(http_response_code(), ['data' => $response_data, 'type' => $response_type]);
     echo json_encode($response, JSON_UNESCAPED_SLASHES);
 ?>
