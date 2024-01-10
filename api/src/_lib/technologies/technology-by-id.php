@@ -123,12 +123,13 @@
                                             http_response_code(200);
         
                                         } catch (PDOException $err) {
+                                            $mysql_connection->rollBack();
                                             switch ($err->getCode()) {
                                                 case 23000:
                                                     http_response_code(400);
                                                     $response_type = "category not found";
                                                     break;
-                                                    default:
+                                                default:
                                                     http_response_code(500);
                                                     break;
                                             }
@@ -175,17 +176,38 @@
 
                 try {
 
+                    $mysql_connection->beginTransaction();
+
                     $sql_deleteTech = 'DELETE FROM technologies WHERE `name` = :name';
                     $sth = $mysql_connection->prepare($sql_deleteTech);
 
                     $sth->bindParam(':name', $tech_name, PDO::PARAM_STR);
 
                     $sth->execute();
+                    unset($sth);
+
+                    try {
+
+                        $sql_deleteFk = 'DELETE FROM cat_tech WHERE tech_id = (SELECT id FROM technologies WHERE `name` = :name)';
+                        $sth = $mysql_connection->prepare($sql_deleteFk);
+
+                        $sth->bindParam(':name', $tech_name, PDO::PARAM_STR);
+                        $sth->execute();
+                        unset($sth);
+                        
+                    } catch (PDOException $err) {
+                        error_log($err);
+                        $mysql_connection->rollBack();
+                        http_response_code(500);
+                    }
 
                     http_response_code(200);
 
+                    $mysql_connection->commit();
+
                 } catch (Exception $err) {
                     error_log($err);
+                    $mysql_connection->rollBack();
                     http_response_code(500);
                 }
             }
