@@ -100,6 +100,8 @@
         // Checking if the given parameter is an array
         if (is_array($object)) {
 
+            $object_sanitized = [];
+
             // Sanitizing the array values
             foreach($object as $key => $value) {
                 // Checking if the value is an array to sanitize
