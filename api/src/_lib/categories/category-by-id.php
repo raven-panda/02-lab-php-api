@@ -115,7 +115,6 @@
 
     } catch (Exception $err) {
         error_log($err);
-        print_r($err->getMessage());
         http_response_code(500);
     }
 

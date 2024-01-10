@@ -117,7 +117,6 @@
                                                 $sth->bindParam(':name', $name, PDO::PARAM_STR);
                                                 $sth->bindParam(':category', $category, PDO::PARAM_STR);
                                                 $test = $sth->execute();
-                                                var_dump($test);
                                                 unset($sth);
                                             }
                                             http_response_code(200);
@@ -139,7 +138,6 @@
                                         http_response_code(200);
                                             
                                     } catch (PDOException $err) {
-                                        print_r($err->getMessage());
                                         $mysql_connection->rollBack();
                                         error_log($err);
                                         http_response_code(500);
