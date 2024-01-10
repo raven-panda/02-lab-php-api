@@ -136,7 +136,6 @@
                                 
                             } catch (PDOException $err) {
                                 error_log($err);
-                                print_r($err->getMessage());
                                 switch ($err->getCode()) {
                                     case 23000:
                                         http_response_code(409);
@@ -157,10 +156,12 @@
 
                 } else {
                     http_response_code(400);
+                    $response_type = "incorrect fields values";
                 }
 
             } else {
                 http_response_code(400);
+                $response_type = "missing fields";
             }
 
         } else {
