@@ -3,6 +3,7 @@
 
     $response = '';
     $response_data = null;
+    $response_type = null;
 
     // If the method is POST, list all the technologies
     if ($request_method === 'GET') {
@@ -104,21 +105,38 @@
                                 
                                 $sth->execute();
                                 
-                                foreach ($categories as $category) {
-                                    $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id) VALUES ((SELECT id FROM categories WHERE `name` = :category), (SELECT id FROM technologies WHERE `name` = :name))';
-                                    $sth = $mysql_connection->prepare($sql_CatTech);
+                                try {
+
+                                    foreach ($categories as $category) {
+                                        $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id)
+                                                        VALUES ((SELECT id FROM categories WHERE `name` = :category),
+                                                                (SELECT id FROM technologies WHERE `name` = :name))';
+                                        $sth = $mysql_connection->prepare($sql_CatTech);
+                                        
+                                        $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                        $sth->bindParam(':category', $category, PDO::PARAM_STR);
+                                        
+                                        $sth->execute();
+                                    }
                                     
-                                    $sth->bindParam(':name', $name, PDO::PARAM_STR);
-                                    $sth->bindParam(':category', $category, PDO::PARAM_STR);
-                                    
-                                    $sth->execute();
+                                    $mysql_connection->commit();
+                                    http_response_code(200);
+
+                                } catch (PDOException $err) {
+                                    switch ($err->getCode()) {
+                                        case 23000:
+                                            http_response_code(400);
+                                            $response_type = "category not found";
+                                            break;
+                                        default:
+                                            http_response_code(500);
+                                            break;
+                                    }
                                 }
-                                
-                                $mysql_connection->commit();
-                                http_response_code(200);
                                 
                             } catch (PDOException $err) {
                                 error_log($err);
+                                print_r($err->getMessage());
                                 switch ($err->getCode()) {
                                     case 23000:
                                         http_response_code(409);
@@ -149,7 +167,7 @@
             http_response_code(413);
         }
 
-        $response = $RES->newResponse(http_response_code(), ['data' => $response_data]);
+        $response = $RES->newResponse(http_response_code(), ['data' => $response_data, 'type' => $response_type]);
 
     }
 
