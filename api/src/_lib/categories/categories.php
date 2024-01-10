@@ -2,6 +2,7 @@
     $request_method = $_SERVER['REQUEST_METHOD'];
     $response = '';
     $response_data = null;
+    $response_type = null;
 
     // If the method is GET, list all the categories
     if ($request_method === "GET") {
@@ -91,10 +92,12 @@
 
             } else {
                 http_response_code(400);
+                $response_type = "incorrect name format";
             }
 
         } else {
             http_response_code(400);
+            $response_type = "missing fields";
         }
 
         $response = $RES->newResponse(http_response_code());
