@@ -30,6 +30,7 @@
             $sth->execute();
 
             $results = $sth->fetch(PDO::FETCH_ASSOC);
+            unset($sth);
 
             // Sanitizing the ressources and categories JSON in order to prevent multiple backslahes or returning a 'stringified' array.
             $results['ressources'] = sanitizeObject(json_decode($results['ressources'], true));
@@ -83,10 +84,13 @@
 
                                     try {
 
+                                        $mysql_connection->beginTransaction();
+
                                         // Updating the technology with given values
                                         $sql_updateTech = 'UPDATE technologies SET `name` = :name, ressources = :ressources, categories = :category, icon = :icon WHERE `name` = :old_name;';
                                         $sth = $mysql_connection->prepare($sql_updateTech);
                         
+                                        
                                         $sth->bindParam(':name', $name, PDO::PARAM_STR);
                                         $sth->bindParam(':ressources', $json_ress, PDO::PARAM_STR);
                                         $sth->bindParam(':category', $json_categories, PDO::PARAM_STR);
@@ -94,10 +98,48 @@
                                         $sth->bindParam(':old_name', $tech_name, PDO::PARAM_STR);
                     
                                         $sth->execute();
-                
+                                        unset($sth);
+
+                                        try {
+
+                                            $sql_deloldfk = 'DELETE FROM cat_tech WHERE tech_id = (SELECT id FROM technologies WHERE `name` = :name)';
+                                            $sth = $mysql_connection->prepare($sql_deloldfk);
+                                            $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                            $sth->execute();
+                                            unset($sth);
+
+                                            foreach ($categories as $category) {
+                                                $sql_CatTech = 'INSERT INTO cat_tech (cat_id, tech_id)
+                                                                VALUES ((SELECT id FROM categories WHERE `name` = :category),
+                                                                        (SELECT id FROM technologies WHERE `name` = :name))';
+                                                $sth = $mysql_connection->prepare($sql_CatTech);
+                                                
+                                                $sth->bindParam(':name', $name, PDO::PARAM_STR);
+                                                $sth->bindParam(':category', $category, PDO::PARAM_STR);
+                                                $test = $sth->execute();
+                                                var_dump($test);
+                                                unset($sth);
+                                            }
+                                            http_response_code(200);
+        
+                                        } catch (PDOException $err) {
+                                            switch ($err->getCode()) {
+                                                case 23000:
+                                                    http_response_code(400);
+                                                    $response_type = "category not found";
+                                                    break;
+                                                    default:
+                                                    http_response_code(500);
+                                                    break;
+                                            }
+                                        }
+                                        
+                                        $mysql_connection->commit();
                                         http_response_code(200);
-                
+                                            
                                     } catch (PDOException $err) {
+                                        print_r($err->getMessage());
+                                        $mysql_connection->rollBack();
                                         error_log($err);
                                         http_response_code(500);
                                     }
