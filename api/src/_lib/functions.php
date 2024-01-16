@@ -36,6 +36,8 @@
         private string $already_exists = "Your request enter in conflicts with another ressource.";
         private string $entity_too_large = "The ressource you provided is too large. 2Mb maximum are allowed.";
 
+        public function __construct() {}
+
         /**
          * The response manager method
          * @param int Message code
