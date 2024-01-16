@@ -15,7 +15,7 @@
             if (isset($options['data'])) $this->data = $options['data'];
         }
 
-        public function toArray() {
+        public function toArray(): array {
             $response_array = array(
                 'code' => $this->code,
                 'success' => $this->success
@@ -40,7 +40,7 @@
          * The response manager method
          * @param int Message code
          */
-        public function newResponse(int $code, array $options = null) {
+        public function newResponse(int $code, array $options = null): array {
             $response = new Response();
             $type = null;
             $data = null;
