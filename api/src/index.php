@@ -1,6 +1,7 @@
 <?php
     include './_lib/functions.php';
     header('Content-Type: application/json');
+    header('Access-Control-Allow-Origin: *');
     $RES = new MessageResponses();
 
     /** Function for /api/ endpoint */
