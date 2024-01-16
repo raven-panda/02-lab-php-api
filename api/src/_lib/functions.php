@@ -1,13 +1,13 @@
 <?php
     class Response {
-        private $code;
-        private $success;
-        private $message;
-        private $data;
+        private int $code;
+        private bool $success;
+        private string $message = "";
+        private array $data;
 
         public function __construct() {}
 
-        public function setResponse($code, $success, $options = null) {
+        public function setResponse(int $code, bool $success, array $options = null) {
             $this->code = $code;
             $this->success = $success;
             if (isset($options['message'])) $this->message = $options['message'];
@@ -30,17 +30,17 @@
      * This is the response manager.
      */
     class MessageResponses {
-        private $not_found = "Ressource not found, path or method used may be incorrect.";
-        private $bad_request = "Bad request or incorrect body provided.";
-        private $internal_server_error = "An internal server error occured. Please try again later.";
-        private $already_exists = "Your request enter in conflicts with another ressource.";
-        private $entity_too_large = "The ressource you provided is too large. 2Mb maximum are allowed.";
+        private string $not_found = "Ressource not found, path or method used may be incorrect.";
+        private string $bad_request = "Bad request or incorrect body provided.";
+        private string $internal_server_error = "An internal server error occured. Please try again later.";
+        private string $already_exists = "Your request enter in conflicts with another ressource.";
+        private string $entity_too_large = "The ressource you provided is too large. 2Mb maximum are allowed.";
 
         /**
          * The response manager method
          * @param int Message code
          */
-        public function newResponse($code, $options = null) {
+        public function newResponse(int $code, array $options = null) {
             $response = new Response();
             $type = null;
             $data = null;
