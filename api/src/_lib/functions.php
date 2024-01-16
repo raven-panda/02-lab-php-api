@@ -3,11 +3,11 @@
         private int $code;
         private bool $success;
         private string $message = "";
-        private array $data;
+        private $data;
 
         public function __construct() {}
 
-        public function setResponse(int $code, bool $success, array $options = null) {
+        public function setResponse(int $code, bool $success, $options = null) {
             $this->code = $code;
             $this->success = $success;
             if (isset($options['message'])) $this->message = $options['message'];
